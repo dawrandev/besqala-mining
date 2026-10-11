@@ -67,6 +67,9 @@ return [
 
     'timezone' => 'UTC',
 
+    // Timezone used only for presenting dates to users (Uzbekistan).
+    'display_timezone' => env('APP_DISPLAY_TIMEZONE', 'Asia/Tashkent'),
+
     /*
     |--------------------------------------------------------------------------
     | Application Locale Configuration
