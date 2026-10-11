@@ -10,6 +10,14 @@ use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
+/**
+ * @property int $id
+ * @property array<string, string> $full_name
+ * @property array<string, string> $position
+ * @property array<string, string>|null $department
+ * @property array<string, string>|null $bio
+ * @property int $sort_order
+ */
 #[Fillable(['full_name', 'position', 'department', 'bio', 'photo', 'sort_order'])]
 class Leader extends Model
 {
