@@ -15,7 +15,7 @@ $iconBg = [
         <span class="text-sm text-gray-500 dark:text-gray-400">{{ $label }}</span>
         @if($icon)
             <span class="flex h-10 w-10 items-center justify-center rounded-xl {{ $iconBg }}">
-                {!! $icon !!}
+                <x-icon :name="$icon" />
             </span>
         @endif
     </div>

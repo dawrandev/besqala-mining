@@ -16,6 +16,20 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 /**
+ * @property int $id
+ * @property string $number
+ * @property int $applicant_id
+ * @property int|null $resident_id
+ * @property ApplicationType $type
+ * @property ApplicationStatus $status
+ * @property string $company_name
+ * @property string|null $stir
+ * @property Region $region
+ * @property string $legal_form
+ * @property array<int, array{name: string, share: int}>|null $founders
+ * @property \Illuminate\Support\Carbon|null $submitted_at
+ * @property \Illuminate\Support\Carbon|null $decided_at
+ *
  * @method static ApplicationBuilder<Application> query()
  */
 #[Fillable([
