@@ -17,6 +17,11 @@ return new class extends Migration
             $table->id();
             $table->string('name');
             $table->string('email')->unique();
+            // One of App\Enums\UserRole; drives the dashboard and access rules.
+            $table->string('role')->default('applicant');
+            $table->string('phone')->nullable();
+            // UI language preference (uz/ru/en).
+            $table->string('locale', 2)->default('uz');
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
             $table->rememberToken();

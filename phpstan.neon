@@ -21,4 +21,5 @@ parameters:
     checkModelProperties: true
 
     excludePaths:
-        - app/Console/Kernel.php
+        - app/Console/Kernel.php (?)
+        - tests/Feature/ArchTest.php

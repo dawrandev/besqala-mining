@@ -53,7 +53,12 @@ arch('data objects carry no behaviour beyond construction and conversion')
 
 arch('models extend the framework base class')
     ->expect('App\Models')
-    ->toExtend(Model::class);
+    ->toExtend(Model::class)
+    ->ignoring('App\Models\Builders');
+
+arch('query builders extend the eloquent builder')
+    ->expect('App\Models\Builders')
+    ->toExtend(Illuminate\Database\Eloquent\Builder::class);
 
 arch('enums are enums')
     ->expect('App\Enums')
