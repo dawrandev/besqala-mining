@@ -1,9 +1,109 @@
 @import 'tailwindcss';
+@plugin '@tailwindcss/forms';
 
+@source '../**/*.blade.php';
+@source '../**/*.js';
+@source '../../app/Livewire/**/*.php';
 @source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
 @source '../../storage/framework/views/*.php';
 
+/* Dark mode is toggled by a `.dark` class on <html>. */
+@custom-variant dark (&:is(.dark *));
+
 @theme {
-    --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
-        'Segoe UI Symbol', 'Noto Color Emoji';
+    --font-sans: 'Outfit', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji';
+
+    /* Brand — Besqala teal/emerald identity. */
+    --color-brand-25: #f3fdfb;
+    --color-brand-50: #f0fdfa;
+    --color-brand-100: #ccfbf1;
+    --color-brand-200: #99f6e4;
+    --color-brand-300: #5eead4;
+    --color-brand-400: #2dd4bf;
+    --color-brand-500: #14b8a6;
+    --color-brand-600: #0d9488;
+    --color-brand-700: #0f766e;
+    --color-brand-800: #115e59;
+    --color-brand-900: #134e4a;
+    --color-brand-950: #042f2e;
+
+    /* Neutral gray scale (TailAdmin). */
+    --color-gray-25: #fcfcfd;
+    --color-gray-50: #f9fafb;
+    --color-gray-100: #f2f4f7;
+    --color-gray-200: #e4e7ec;
+    --color-gray-300: #d0d5dd;
+    --color-gray-400: #98a2b3;
+    --color-gray-500: #667085;
+    --color-gray-600: #475467;
+    --color-gray-700: #344054;
+    --color-gray-800: #1d2939;
+    --color-gray-900: #101828;
+    --color-gray-950: #0c111d;
+    --color-gray-dark: #1a2231;
+
+    /* Semantic colours. */
+    --color-success-50: #ecfdf3;
+    --color-success-100: #d1fadf;
+    --color-success-500: #12b76a;
+    --color-success-600: #039855;
+    --color-success-700: #027a48;
+    --color-error-50: #fef3f2;
+    --color-error-100: #fee4e2;
+    --color-error-500: #f04438;
+    --color-error-600: #d92d20;
+    --color-error-700: #b42318;
+    --color-warning-50: #fffaeb;
+    --color-warning-100: #fef0c7;
+    --color-warning-500: #f79009;
+    --color-warning-600: #dc6803;
+    --color-warning-700: #b54708;
+    --color-blue-light-50: #f0f9ff;
+    --color-blue-light-100: #e0f2fe;
+    --color-blue-light-500: #0ba5ec;
+    --color-blue-light-600: #0086c9;
+    --color-indigo-50: #eef4ff;
+    --color-indigo-100: #e0eaff;
+    --color-indigo-500: #6172f3;
+    --color-indigo-600: #444ce7;
+
+    /* Elevations. */
+    --shadow-theme-xs: 0px 1px 2px 0px rgba(16, 24, 40, 0.05);
+    --shadow-theme-sm: 0px 1px 3px 0px rgba(16, 24, 40, 0.1), 0px 1px 2px 0px rgba(16, 24, 40, 0.06);
+    --shadow-theme-md: 0px 4px 8px -2px rgba(16, 24, 40, 0.1), 0px 2px 4px -2px rgba(16, 24, 40, 0.06);
+    --shadow-theme-lg: 0px 12px 16px -4px rgba(16, 24, 40, 0.08), 0px 4px 6px -2px rgba(16, 24, 40, 0.03);
+    --shadow-theme-xl: 0px 20px 24px -4px rgba(16, 24, 40, 0.08), 0px 8px 8px -4px rgba(16, 24, 40, 0.03);
+}
+
+@layer base {
+    body {
+        @apply bg-gray-50 font-sans text-gray-800 antialiased dark:bg-gray-950 dark:text-gray-200;
+    }
+}
+
+/* Sidebar navigation item states (TailAdmin-style). */
+@utility menu-item {
+    @apply relative flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors duration-150;
+}
+
+@utility menu-item-active {
+    @apply bg-brand-50 text-brand-700 dark:bg-brand-500/15 dark:text-brand-400;
+}
+
+@utility menu-item-inactive {
+    @apply text-gray-600 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-white/5 dark:hover:text-gray-200;
+}
+
+/* Reusable card surface. */
+@utility card {
+    @apply rounded-2xl border border-gray-200 bg-white shadow-theme-xs dark:border-gray-800 dark:bg-gray-900;
+}
+
+@utility no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}
+
+.no-scrollbar::-webkit-scrollbar {
+    display: none;
 }
