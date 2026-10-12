@@ -12,6 +12,49 @@
             <x-ui.stat :label="__('Faol rezidentlar')" :value="$activeResidents" :caption="$suspendedResidents.' '.__('to‘xtatilgan')" icon="building" color="brand" />
         </div>
 
+        @php
+            $areaOptions = [
+                'chart' => ['type' => 'area', 'height' => 210, 'fontFamily' => 'Outfit, sans-serif', 'toolbar' => ['show' => false]],
+                'series' => [['name' => __('Arizalar'), 'data' => $monthly['data']]],
+                'xaxis' => ['categories' => $monthly['labels'], 'axisBorder' => ['show' => false], 'axisTicks' => ['show' => false]],
+                'yaxis' => ['labels' => ['style' => ['colors' => '#98a2b3']]],
+                'colors' => ['#465fff'],
+                'stroke' => ['curve' => 'smooth', 'width' => 2],
+                'fill' => ['type' => 'gradient', 'gradient' => ['opacityFrom' => 0.4, 'opacityTo' => 0.02]],
+                'dataLabels' => ['enabled' => false],
+                'grid' => ['strokeDashArray' => 4, 'borderColor' => '#e4e7ec'],
+                'tooltip' => ['theme' => 'light'],
+            ];
+            $donutOptions = [
+                'chart' => ['type' => 'donut', 'height' => 240, 'fontFamily' => 'Outfit, sans-serif'],
+                'series' => $statusBreakdown['data'],
+                'labels' => $statusBreakdown['labels'],
+                'colors' => $statusBreakdown['colors'],
+                'legend' => ['position' => 'bottom', 'fontSize' => '13px'],
+                'dataLabels' => ['enabled' => false],
+                'plotOptions' => ['pie' => ['donut' => ['size' => '68%']]],
+                'stroke' => ['width' => 0],
+            ];
+        @endphp
+
+        <div class="grid gap-6 lg:grid-cols-5">
+            <div class="card p-6 lg:col-span-3">
+                <div class="mb-4 flex items-center justify-between">
+                    <h2 class="font-semibold text-gray-900 dark:text-white">{{ __('Jami arizalar') }}</h2>
+                    <span class="text-xs text-gray-400">{{ __('barcha davr') }}</span>
+                </div>
+                <x-admin.chart :options="$areaOptions" />
+            </div>
+            <div class="card p-6 lg:col-span-2">
+                <h2 class="mb-4 font-semibold text-gray-900 dark:text-white">{{ __('Arizalar holati bo‘yicha') }}</h2>
+                @if (count($statusBreakdown['data']) > 0)
+                    <x-admin.chart :options="$donutOptions" />
+                @else
+                    <p class="py-12 text-center text-sm text-gray-400">{{ __('Ma‘lumot yo‘q.') }}</p>
+                @endif
+            </div>
+        </div>
+
         <div class="grid gap-6 lg:grid-cols-5">
             <div class="card lg:col-span-3">
                 <div class="flex items-center justify-between border-b border-gray-100 px-6 py-4 dark:border-gray-800">
