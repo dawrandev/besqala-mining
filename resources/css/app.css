@@ -3,7 +3,6 @@
 
 @source '../**/*.blade.php';
 @source '../**/*.js';
-@source '../../app/Livewire/**/*.php';
 @source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
 @source '../../storage/framework/views/*.php';
 
