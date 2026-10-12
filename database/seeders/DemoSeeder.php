@@ -221,6 +221,20 @@ class DemoSeeder extends Seeder
         foreach (range(1, 2) as $i) {
             $done = $this->pipeline('A-2026-000'.$i, $applicant, null, Region::NukusCity, ApplicationStatus::Registered, companyName: '«Registered '.$i.'» MChJ');
             $this->addConclusion($done, $users['expert'], ExpertVerdict::Positive);
+
+            // Issued certificate linked to the application (drives the QR preview card).
+            Document::query()->create([
+                'number' => 'G-2026-'.str_pad((string) (10 + $i), 4, '0', STR_PAD_LEFT),
+                'kind' => DocumentKind::Certificate,
+                'status' => DocumentStatus::Active,
+                'application_id' => $done->id,
+                'issued_by' => $users['authority']->id,
+                'payload' => ['companyName' => $done->company_name],
+                'template_version' => 'v1',
+                'issued_at' => now()->subMonths(2),
+                'expires_at' => now()->addYears(5),
+            ]);
+            $done->update(['decided_at' => now()->subMonths(2)]);
         }
         $rejected = $this->pipeline('A-2026-0006', $applicant, null, Region::Beruniy, ApplicationStatus::Rejected, companyName: '«Rad etilgan» MChJ');
         $this->addConclusion($rejected, $users['expert'], ExpertVerdict::Negative);
