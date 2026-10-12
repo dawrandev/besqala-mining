@@ -13,7 +13,7 @@
     </section>
 
     @if($about && !empty($about['stats']))
-        <section class="mx-auto -mt-10 max-w-5xl px-4 sm:px-6 lg:px-8">
+        <section class="relative z-10 mx-auto -mt-10 max-w-5xl px-4 sm:px-6 lg:px-8">
             <div class="grid grid-cols-1 gap-4 sm:grid-cols-3">
                 @foreach ($about['stats'] as $stat)
                     <div class="card p-7 text-center">

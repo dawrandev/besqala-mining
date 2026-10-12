@@ -189,8 +189,12 @@
                 <div class="mt-10 grid gap-6 md:grid-cols-3">
                     @foreach ($latestNews as $article)
                         <a href="{{ route('news.show', $article->slug) }}" class="group overflow-hidden rounded-2xl border border-gray-200 bg-white transition hover:-translate-y-1 hover:shadow-theme-lg dark:border-gray-800 dark:bg-gray-900">
-                            <div class="relative flex h-44 items-center justify-center overflow-hidden bg-gradient-to-br from-accent-500/15 via-accent-400/10 to-transparent">
-                                <x-icon name="news" class="h-10 w-10 text-accent-500/70 transition group-hover:scale-110" />
+                            <div class="relative flex h-44 items-center justify-center overflow-hidden bg-gradient-to-br from-accent-500 to-accent-700">
+                                <div class="absolute inset-0 opacity-10" style="background-image: linear-gradient(#fff 1px, transparent 1px), linear-gradient(90deg, #fff 1px, transparent 1px); background-size: 28px 28px;"></div>
+                                <div class="absolute -right-8 -top-8 h-28 w-28 rounded-full bg-white/10"></div>
+                                <span class="grid h-14 w-14 place-items-center rounded-2xl bg-white/15 backdrop-blur transition group-hover:scale-110">
+                                    <x-icon name="news" class="h-7 w-7 text-white" />
+                                </span>
                             </div>
                             <div class="p-6">
                                 <p class="text-xs font-medium text-gray-400">{{ $article->published_at?->translatedFormat('d F Y') }}</p>
