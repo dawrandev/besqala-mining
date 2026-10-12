@@ -69,6 +69,7 @@ Route::middleware('auth')->prefix('app')->name('app.')->group(function (): void 
     Route::middleware('role:applicant')->group(function (): void {
         Route::get('/applications', [ApplicationController::class, 'index'])->name('applications');
         Route::get('/new', [ApplicationController::class, 'create'])->name('applications.create');
+        Route::post('/applications', [ApplicationController::class, 'store'])->name('applications.store');
         Route::get('/cabinet', [CabinetController::class, 'index'])->name('cabinet');
         Route::get('/cabinet/{resident}', [CabinetController::class, 'show'])->name('cabinet.show');
     });
@@ -94,12 +95,26 @@ Route::middleware('auth')->prefix('app')->name('app.')->group(function (): void 
     // Content admin
     Route::middleware('role:admin')->prefix('admin')->name('admin.')->group(function (): void {
         Route::get('/news', [AdminNewsController::class, 'index'])->name('news');
+        Route::get('/news/list', [AdminNewsController::class, 'list'])->name('news.list');
+        Route::get('/news/{news}/edit', [AdminNewsController::class, 'edit'])->name('news.edit');
+        Route::post('/news', [AdminNewsController::class, 'store'])->name('news.store');
+        Route::put('/news/{news}', [AdminNewsController::class, 'update'])->name('news.update');
+        Route::delete('/news/{news}', [AdminNewsController::class, 'destroy'])->name('news.destroy');
+
         Route::get('/leadership', [AdminLeadershipController::class, 'index'])->name('leadership');
+        Route::get('/leadership/list', [AdminLeadershipController::class, 'list'])->name('leadership.list');
+        Route::get('/leadership/{leader}/edit', [AdminLeadershipController::class, 'edit'])->name('leadership.edit');
+        Route::post('/leadership', [AdminLeadershipController::class, 'store'])->name('leadership.store');
+        Route::put('/leadership/{leader}', [AdminLeadershipController::class, 'update'])->name('leadership.update');
+        Route::delete('/leadership/{leader}', [AdminLeadershipController::class, 'destroy'])->name('leadership.destroy');
+
         Route::get('/about', [AboutContentController::class, 'index'])->name('about');
+        Route::put('/about', [AboutContentController::class, 'update'])->name('about.update');
     });
 
     // Application detail is reachable by staff and the owning applicant.
     Route::get('/a/{application}', [ApplicationController::class, 'show'])->name('applications.show');
+    Route::post('/a/{application}/action', [ApplicationController::class, 'action'])->name('applications.action');
 
     // Document PDF download (staff or owning applicant; policy-guarded).
     Route::get('/documents/{document}/pdf', [DocumentController::class, 'download'])->name('documents.download');

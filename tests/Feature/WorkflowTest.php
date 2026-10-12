@@ -6,12 +6,9 @@ use App\Enums\ApplicationStatus;
 use App\Enums\DocumentKind;
 use App\Enums\ResidentStatus;
 use App\Enums\UserRole;
-use App\Livewire\ApplicationActions;
-use App\Livewire\ApplicationForm;
 use App\Models\Application;
 use App\Models\User;
 use Database\Seeders\DemoSeeder;
-use Livewire\Livewire;
 
 beforeEach(fn () => $this->seed(DemoSeeder::class));
 
@@ -23,14 +20,16 @@ function userWithRole(UserRole $role): User
 it('lets an applicant submit a new application', function (): void {
     $applicant = userWithRole(UserRole::Applicant);
 
-    Livewire::actingAs($applicant)->test(ApplicationForm::class)
-        ->set('company_name', '«Test Mining» MChJ')
-        ->set('stir', '301234567')
-        ->set('region', 'nukus_city')
-        ->set('address', 'Nukus, Test 1')
-        ->call('save', true)
-        ->assertHasNoErrors()
-        ->assertRedirect();
+    $this->actingAs($applicant)
+        ->postJson(route('app.applications.store'), [
+            'company_name' => '«Test Mining» MChJ',
+            'stir' => '301234567',
+            'region' => 'nukus_city',
+            'address' => 'Nukus, Test 1',
+            'submit' => true,
+        ])
+        ->assertOk()
+        ->assertJson(['ok' => true]);
 
     $this->assertDatabaseHas('applications', [
         'company_name' => '«Test Mining» MChJ',
@@ -39,9 +38,10 @@ it('lets an applicant submit a new application', function (): void {
 });
 
 it('validates required fields on submit', function (): void {
-    Livewire::actingAs(userWithRole(UserRole::Applicant))->test(ApplicationForm::class)
-        ->call('save', true)
-        ->assertHasErrors(['company_name', 'stir', 'region', 'address']);
+    $this->actingAs(userWithRole(UserRole::Applicant))
+        ->postJson(route('app.applications.store'), [])
+        ->assertStatus(422)
+        ->assertJsonValidationErrors(['company_name', 'stir', 'region', 'address']);
 });
 
 it('runs an application through the full pipeline to registration', function (): void {
@@ -59,18 +59,21 @@ it('runs an application through the full pipeline to registration', function ():
     ]);
 
     // Direksiya -> expert review
-    Livewire::actingAs(userWithRole(UserRole::Direksiya))->test(ApplicationActions::class, ['application' => $application])
-        ->call('sendToExpert')->assertHasNoErrors();
+    $this->actingAs(userWithRole(UserRole::Direksiya))
+        ->postJson(route('app.applications.action', $application), ['action' => 'expert'])
+        ->assertOk();
     expect($application->refresh()->status)->toBe(ApplicationStatus::ExpertReview);
 
     // Expert -> positive -> authority review
-    Livewire::actingAs(userWithRole(UserRole::Expert))->test(ApplicationActions::class, ['application' => $application->refresh()])
-        ->call('conclude', 'positive')->assertHasNoErrors();
+    $this->actingAs(userWithRole(UserRole::Expert))
+        ->postJson(route('app.applications.action', $application), ['action' => 'conclude', 'verdict' => 'positive'])
+        ->assertOk();
     expect($application->refresh()->status)->toBe(ApplicationStatus::AuthorityReview);
 
     // Authority -> issue permit -> registered
-    Livewire::actingAs(userWithRole(UserRole::Authority))->test(ApplicationActions::class, ['application' => $application->refresh()])
-        ->call('issuePermit')->assertHasNoErrors();
+    $this->actingAs(userWithRole(UserRole::Authority))
+        ->postJson(route('app.applications.action', $application), ['action' => 'permit'])
+        ->assertOk();
 
     $application->refresh();
     expect($application->status)->toBe(ApplicationStatus::Registered)
@@ -84,7 +87,7 @@ it('runs an application through the full pipeline to registration', function ():
 it('forbids the wrong role from acting', function (): void {
     $application = Application::query()->where('status', ApplicationStatus::CompletenessCheck)->firstOrFail();
 
-    Livewire::actingAs(userWithRole(UserRole::Applicant))->test(ApplicationActions::class, ['application' => $application])
-        ->call('sendToExpert')
+    $this->actingAs(userWithRole(UserRole::Applicant))
+        ->postJson(route('app.applications.action', $application), ['action' => 'expert'])
         ->assertForbidden();
 });

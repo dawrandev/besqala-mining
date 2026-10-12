@@ -48,6 +48,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>{{ ($title ?? $role->panelTitle()) }} — Besqala Mining Valley</title>
     <script>
         if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
@@ -55,7 +56,6 @@
         }
     </script>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
-    @livewireStyles
 </head>
 <body class="font-outfit bg-gray-50 dark:bg-gray-900">
 <div x-data="{ sidebarOpen: false, profile: false, notify: false }" class="xl:flex">
@@ -219,6 +219,6 @@
         </main>
     </div>
 </div>
-@livewireScripts
+@stack('scripts')
 </body>
 </html>

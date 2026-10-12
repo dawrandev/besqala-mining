@@ -4,6 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="description" content="{{ __('Besqala Mining Valley — maxsus mayning zonasi rezidentlarini ro‘yxatga olish va boshqarish platformasi') }}">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>{{ $title ?? __('Besqala Mining Valley — Maxsus mayning zonasi') }}</title>
     <script>
         if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
@@ -11,7 +12,6 @@
         }
     </script>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
-    @livewireStyles
 </head>
 <body class="min-h-screen bg-white text-gray-900 antialiased dark:bg-gray-950 dark:text-gray-100">
     <header x-data="{ open: false }" class="sticky top-0 z-40 border-b border-gray-200/80 bg-white/80 backdrop-blur-lg dark:border-gray-800 dark:bg-gray-950/80">
@@ -99,6 +99,5 @@
         </div>
     </footer>
 
-    @livewireScripts
 </body>
 </html>

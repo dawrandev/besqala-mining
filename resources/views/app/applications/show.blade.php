@@ -172,7 +172,7 @@
 
         {{-- Role-based workflow actions --}}
         @can('act', $application)
-            <livewire:application-actions :application="$application" />
+            @include('app.applications.partials.actions')
         @endcan
 
         <div class="grid gap-6 lg:grid-cols-2">

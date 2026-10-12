@@ -3,6 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>{{ __('Besqala Mining Valley — Maxsus mayning zonasi') }}</title>
     <script>
         if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
@@ -10,7 +11,6 @@
         }
     </script>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
-    @livewireStyles
 </head>
 <body class="min-h-screen bg-gray-50 dark:bg-gray-950">
 <div class="flex min-h-screen flex-col lg:flex-row">
@@ -47,6 +47,5 @@
         </div>
     </div>
 </div>
-@livewireScripts
 </body>
 </html>
