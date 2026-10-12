@@ -42,6 +42,21 @@
                     <span class="inline-flex items-center gap-2"><x-icon name="chart" class="h-4 w-4 text-accent-400" /> {{ __('Toza energiya') }}</span>
                     <span class="inline-flex items-center gap-2"><x-icon name="verify" class="h-4 w-4 text-accent-400" /> {{ __('QR-tekshiruv') }}</span>
                 </div>
+
+                {{-- Service value stats --}}
+                <dl class="mt-10 grid max-w-xl grid-cols-2 gap-px overflow-hidden rounded-2xl border border-white/10 bg-white/10 sm:grid-cols-4">
+                    @foreach ([
+                        ['5', __('yil'), __('Ruxsatnoma muddati')],
+                        ['30', __('kun'), __('Ariza ko‘rib chiqish')],
+                        ['0', __('so‘m'), __('Yig‘imsiz')],
+                        ['100%', '', __('Elektron xizmat')],
+                    ] as [$num, $unit, $cap])
+                        <div class="bg-gray-950/80 p-4">
+                            <dt class="text-2xl font-bold text-white">{{ $num }}@if($unit)<span class="text-base font-medium text-accent-300"> {{ $unit }}</span>@endif</dt>
+                            <dd class="mt-0.5 text-xs text-gray-400">{{ $cap }}</dd>
+                        </div>
+                    @endforeach
+                </dl>
             </div>
 
             {{-- Floating permit card visual --}}
@@ -141,6 +156,78 @@
                         </div>
                     </div>
                 @endforeach
+            </div>
+        </div>
+    </section>
+
+    {{-- ===================== ALLOWED ENERGY TYPES ===================== --}}
+    <section class="mx-auto max-w-7xl px-4 py-20 sm:px-6 lg:px-8 lg:py-24">
+        <div class="grid gap-10 lg:grid-cols-2 lg:items-center">
+            <div>
+                <span class="inline-flex items-center gap-2 rounded-full bg-accent-50 px-3 py-1 text-sm font-semibold text-accent-700 dark:bg-accent-500/15 dark:text-accent-400">
+                    <x-icon name="chart" class="h-4 w-4" /> {{ __('Energiya manbalari') }}
+                </span>
+                <h2 class="mt-4 text-3xl font-bold text-gray-900 sm:text-4xl dark:text-white">{{ __('Ruxsat etilgan energiya turlari') }}</h2>
+                <p class="mt-4 text-lg leading-relaxed text-gray-500 dark:text-gray-400">{{ __('Mayning faoliyati faqat Nizomda belgilangan energiya manbalaridan foydalangan holda amalga oshiriladi. Iste‘mol qilinadigan elektr energiyasi alohida hisobga olinadi.') }}</p>
+                <a href="{{ route('about') }}" class="mt-6 inline-flex items-center gap-2 text-sm font-semibold text-accent-600 hover:text-accent-700 dark:text-accent-400">{{ __('Batafsil ma‘lumot') }} <x-icon name="arrow-right" class="h-4 w-4" /></a>
+            </div>
+            <div class="grid gap-4 sm:grid-cols-2">
+                @foreach ([
+                    ['sun', __('Qayta tiklanuvchi'), __('Quyosh va shamol energiyasi manbalari')],
+                    ['bitcoin', __('Vodorod'), __('Vodorod elektr stansiyalari')],
+                    ['chart', __('Yagona tizim'), __('Yagona elektr energetika tizimi')],
+                    ['building', __('Uglevodorod'), __('Kam debitli va eskirgan konlar')],
+                ] as [$icon, $title, $desc])
+                    <div class="card p-6">
+                        <span class="flex h-11 w-11 items-center justify-center rounded-xl bg-accent-50 text-accent-600 dark:bg-accent-500/15 dark:text-accent-400"><x-icon :name="$icon" /></span>
+                        <h3 class="mt-4 font-semibold text-gray-900 dark:text-white">{{ $title }}</h3>
+                        <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">{{ $desc }}</p>
+                    </div>
+                @endforeach
+            </div>
+        </div>
+    </section>
+
+    {{-- ===================== OBLIGATIONS vs PROHIBITED ===================== --}}
+    <section class="border-y border-gray-200 bg-gray-50 dark:border-gray-800 dark:bg-white/[0.02]">
+        <div class="mx-auto grid max-w-7xl gap-6 px-4 py-20 sm:px-6 lg:grid-cols-2 lg:px-8 lg:py-24">
+            <div class="rounded-2xl border border-success-200 bg-white p-7 dark:border-success-500/20 dark:bg-white/[0.03]">
+                <div class="flex items-center gap-3">
+                    <span class="flex h-11 w-11 items-center justify-center rounded-xl bg-success-50 text-success-600 dark:bg-success-500/15 dark:text-success-500"><x-icon name="check-doc" /></span>
+                    <h3 class="text-lg font-bold text-gray-900 dark:text-white">{{ __('Rezident majburiyatlari') }}</h3>
+                </div>
+                <ul class="mt-5 space-y-3">
+                    @foreach ([
+                        __('Faqat ko‘rsatilgan manzilda mayning amalga oshirish'),
+                        __('Topilgan kripto-aktivlarni hisobga olib borish'),
+                        __('Kripto-aktivlar aylanmasi qonunchiligiga rioya qilish'),
+                        __('Har oyda faoliyat hisobotini taqdim etish'),
+                        __('Belgilangan ajratmalarni o‘z vaqtida to‘lash'),
+                    ] as $item)
+                        <li class="flex items-start gap-3 text-sm text-gray-600 dark:text-gray-300">
+                            <x-icon name="verify" class="mt-0.5 h-4 w-4 shrink-0 text-success-500" /> {{ $item }}
+                        </li>
+                    @endforeach
+                </ul>
+            </div>
+            <div class="rounded-2xl border border-error-200 bg-white p-7 dark:border-error-500/20 dark:bg-white/[0.03]">
+                <div class="flex items-center gap-3">
+                    <span class="flex h-11 w-11 items-center justify-center rounded-xl bg-error-50 text-error-600 dark:bg-error-500/15 dark:text-error-500"><x-icon name="alert" /></span>
+                    <h3 class="text-lg font-bold text-gray-900 dark:text-white">{{ __('Taqiqlangan faoliyat') }}</h3>
+                </div>
+                <ul class="mt-5 space-y-3">
+                    @foreach ([
+                        __('Yashirin mayning (yashirin dasturiy ta‘minot orqali)'),
+                        __('Anonim kripto-aktivlar mayningi'),
+                        __('Muomaladan chiqarilgan kripto-aktivlarni chiqarish'),
+                        __('Ko‘rsatilmagan manzilda mayning qilish'),
+                    ] as $item)
+                        <li class="flex items-start gap-3 text-sm text-gray-600 dark:text-gray-300">
+                            <svg class="mt-0.5 h-4 w-4 shrink-0 text-error-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path stroke-linecap="round" d="m5.6 5.6 12.8 12.8"/></svg>
+                            {{ $item }}
+                        </li>
+                    @endforeach
+                </ul>
             </div>
         </div>
     </section>
