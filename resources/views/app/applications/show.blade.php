@@ -2,6 +2,49 @@
     <div class="mx-auto max-w-5xl space-y-6">
         <a href="{{ url()->previous() }}" class="inline-flex items-center gap-1 text-sm font-medium text-gray-500 hover:text-brand-600"><x-icon name="arrow-right" class="h-4 w-4 rotate-180" /> {{ __('Orqaga') }}</a>
 
+        {{-- Workflow progress stepper --}}
+        @php
+            $steps = [__('Topshirildi'), __('To‘liqlik tekshiruvi'), __('Ekspert xulosasi'), __('Ruxsatnoma'), __('Ro‘yxatga olish')];
+            $statusStep = [
+                'draft' => 0, 'submitted' => 0, 'completeness_check' => 1, 'deficiency' => 1,
+                'expert_review' => 2, 'authority_review' => 3, 'permit_issued' => 4, 'registered' => 4, 'rejected' => 1,
+            ];
+            $current = $statusStep[$application->status->value] ?? 0;
+            $isRejected = $application->status->value === 'rejected';
+            $done = $application->status->value === 'registered';
+        @endphp
+        <div class="card p-6">
+            <ol class="flex items-center">
+                @foreach ($steps as $i => $label)
+                    @php
+                        $isDone = $i < $current || ($i === $current && $done);
+                        $isActive = $i === $current && ! $done;
+                        $barDone = $i < $current;
+                    @endphp
+                    <li @class(['flex items-center', 'flex-1' => ! $loop->last])>
+                        <div class="flex flex-col items-center gap-2">
+                            <span @class([
+                                'flex h-9 w-9 items-center justify-center rounded-full text-sm font-semibold ring-4 ring-white dark:ring-gray-900',
+                                'bg-success-500 text-white' => $isDone,
+                                'bg-brand-500 text-white' => $isActive && ! $isRejected,
+                                'bg-error-500 text-white' => $isActive && $isRejected,
+                                'bg-gray-100 text-gray-400 dark:bg-gray-800' => ! $isDone && ! $isActive,
+                            ])>
+                                @if($isDone)<x-icon name="verify" class="h-5 w-5" />@else{{ $i + 1 }}@endif
+                            </span>
+                            <span @class(['hidden text-center text-xs font-medium sm:block', 'text-gray-800 dark:text-gray-200' => $isDone || $isActive, 'text-gray-400' => ! $isDone && ! $isActive])>{{ $label }}</span>
+                        </div>
+                        @unless($loop->last)
+                            <div @class(['mx-2 -mt-6 h-0.5 flex-1', 'bg-success-500' => $barDone, 'bg-gray-200 dark:bg-gray-700' => ! $barDone])></div>
+                        @endunless
+                    </li>
+                @endforeach
+            </ol>
+            @if($isRejected)
+                <p class="mt-4 text-center text-sm font-medium text-error-600">{{ __('Ariza rad etildi') }}</p>
+            @endif
+        </div>
+
         <div class="card p-6">
             <div class="flex flex-wrap items-start justify-between gap-4">
                 <div>
@@ -19,6 +62,8 @@
                     [__('Tashkiliy shakl'), $application->legal_form],
                     [__('Quvvat'), $application->power_mw ? number_format((float)$application->power_mw, 1).' MW' : '—'],
                     [__('Energiya manbai'), $application->energy_source ?? '—'],
+                    [__('Mayning joylashuvi'), $application->location_address ?? '—'],
+                    [__('Bank hisob raqami'), $application->bank_account ?? '—'],
                     [__('Topshirilgan'), $application->submitted_at?->translatedFormat('d M Y') ?? '—'],
                 ] as [$k, $v])
                     <div><dt class="text-xs text-gray-400">{{ $k }}</dt><dd class="text-sm font-medium text-gray-800 dark:text-gray-200">{{ $v }}</dd></div>
@@ -96,9 +141,15 @@
                     <div class="card p-6">
                         <h2 class="mb-3 font-semibold text-gray-900 dark:text-white">{{ __('Hujjatlar') }}</h2>
                         @foreach ($application->documents as $doc)
-                            <div class="flex items-center justify-between py-2">
-                                <span class="font-mono text-sm text-gray-700 dark:text-gray-300">{{ $doc->number }}</span>
-                                <a href="{{ route('verify', ['no' => $doc->number]) }}" class="text-sm font-medium text-brand-600 dark:text-brand-400">{{ __('Tekshirish') }}</a>
+                            <div class="flex items-center justify-between gap-3 py-2">
+                                <div class="min-w-0">
+                                    <span class="font-mono text-sm font-medium text-gray-700 dark:text-gray-300">{{ $doc->number }}</span>
+                                    <span class="ml-2 text-xs text-gray-400">{{ $doc->kind->label() }}</span>
+                                </div>
+                                <div class="flex shrink-0 items-center gap-3">
+                                    <a href="{{ route('app.documents.download', $doc) }}" class="inline-flex items-center gap-1 text-sm font-medium text-gray-500 hover:text-brand-600 dark:text-gray-400"><x-icon name="doc" class="h-4 w-4" /> PDF</a>
+                                    <a href="{{ route('verify', ['no' => $doc->number]) }}" class="text-sm font-medium text-brand-600 dark:text-brand-400">{{ __('Tekshirish') }}</a>
+                                </div>
                             </div>
                         @endforeach
                     </div>
