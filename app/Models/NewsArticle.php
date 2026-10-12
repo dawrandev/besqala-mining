@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use App\Enums\NewsCategory;
 use App\Support\Concerns\HasTranslations;
 use Database\Factories\NewsArticleFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
@@ -14,13 +15,14 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 /**
  * @property int $id
  * @property string $slug
+ * @property NewsCategory|null $category
  * @property array<string, string> $title
  * @property array<string, string>|null $excerpt
  * @property array<string, string> $body
  * @property string|null $cover_image
  * @property \Illuminate\Support\Carbon|null $published_at
  */
-#[Fillable(['slug', 'title', 'excerpt', 'body', 'cover_image', 'author_id', 'published_at'])]
+#[Fillable(['slug', 'category', 'title', 'excerpt', 'body', 'cover_image', 'author_id', 'published_at'])]
 class NewsArticle extends Model
 {
     /** @use HasFactory<NewsArticleFactory> */
@@ -32,6 +34,7 @@ class NewsArticle extends Model
     protected function casts(): array
     {
         return [
+            'category' => NewsCategory::class,
             'title' => 'array',
             'excerpt' => 'array',
             'body' => 'array',

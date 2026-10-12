@@ -279,6 +279,9 @@
                             <div class="relative flex h-44 items-center justify-center overflow-hidden bg-gradient-to-br from-accent-500 to-accent-700">
                                 <div class="absolute inset-0 opacity-10" style="background-image: linear-gradient(#fff 1px, transparent 1px), linear-gradient(90deg, #fff 1px, transparent 1px); background-size: 28px 28px;"></div>
                                 <div class="absolute -right-8 -top-8 h-28 w-28 rounded-full bg-white/10"></div>
+                                @if($article->category)
+                                    <span class="absolute left-4 top-4 rounded-full bg-white/20 px-2.5 py-0.5 text-xs font-medium text-white backdrop-blur">{{ $article->category->label() }}</span>
+                                @endif
                                 <span class="grid h-14 w-14 place-items-center rounded-2xl bg-white/15 backdrop-blur transition group-hover:scale-110">
                                     <x-icon name="news" class="h-7 w-7 text-white" />
                                 </span>

@@ -27,6 +27,12 @@ class ApplicationForm extends Component
     #[Validate('nullable|string|max:255')]
     public string $location_address = '';
 
+    #[Validate('nullable|string|max:60')]
+    public string $cadastre_number = '';
+
+    #[Validate('nullable|string|max:120')]
+    public string $property_right = '';
+
     #[Validate('nullable|email')]
     public string $email = '';
 
@@ -41,6 +47,12 @@ class ApplicationForm extends Component
 
     #[Validate('nullable|string|max:60')]
     public string $bank_account = '';
+
+    #[Validate('nullable|string|max:120')]
+    public string $bank_name = '';
+
+    #[Validate('nullable|string|max:80')]
+    public string $btc_address = '';
 
     /** @var list<array{name: string, share: int|string}> */
     public array $founders = [['name' => '', 'share' => 100]];
@@ -67,12 +79,16 @@ class ApplicationForm extends Component
             'legal_form' => 'MChJ (Mas’uliyati cheklangan jamiyat)',
             'address' => $validated['address'],
             'location_address' => $this->location_address ?: null,
+            'cadastre_number' => $this->cadastre_number ?: null,
+            'property_right' => $this->property_right ?: null,
             'email' => $this->email ?: null,
             'phone' => $this->phone ?: null,
             'founders' => array_values(array_filter($this->founders, fn (array $f): bool => $f['name'] !== '')),
             'power_mw' => $this->power_mw,
             'energy_source' => $this->energy_source ?: null,
             'bank_account' => $this->bank_account ?: null,
+            'bank_name' => $this->bank_name ?: null,
+            'btc_address' => $this->btc_address ?: null,
         ], auth()->user(), $submit);
 
         session()->flash('status', $submit ? __('Ariza topshirildi.') : __('Qoralama saqlandi.'));

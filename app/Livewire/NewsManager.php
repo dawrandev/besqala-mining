@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Livewire;
 
+use App\Enums\NewsCategory;
 use App\Models\NewsArticle;
 use Illuminate\Contracts\View\View;
 use Illuminate\Support\Str;
@@ -29,10 +30,13 @@ class NewsManager extends Component
 
     public bool $published = true;
 
+    public string $category = 'official';
+
     public function create(): void
     {
         $this->reset(['editingId', 'title', 'excerpt', 'body']);
         $this->published = true;
+        $this->category = 'official';
         $this->showForm = true;
     }
 
@@ -44,6 +48,7 @@ class NewsManager extends Component
         $this->excerpt = array_merge(['uz' => '', 'ru' => '', 'en' => ''], $article->excerpt ?? []);
         $this->body = array_merge(['uz' => '', 'ru' => '', 'en' => ''], $article->body);
         $this->published = $article->isPublished();
+        $this->category = $article->category instanceof NewsCategory ? $article->category->value : 'official';
         $this->showForm = true;
     }
 
@@ -61,6 +66,7 @@ class NewsManager extends Component
             'title' => $this->title,
             'excerpt' => $this->excerpt,
             'body' => $this->body,
+            'category' => NewsCategory::tryFrom($this->category),
             'published_at' => $this->published ? now() : null,
             'author_id' => auth()->id(),
         ];

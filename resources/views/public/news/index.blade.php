@@ -13,7 +13,7 @@
                         <span class="grid h-14 w-14 place-items-center rounded-2xl bg-white/15 backdrop-blur transition group-hover:scale-110">
                             <x-icon name="news" class="h-7 w-7 text-white" />
                         </span>
-                        <span class="absolute left-4 top-4 rounded-full bg-white/15 px-2.5 py-0.5 text-xs font-medium text-white backdrop-blur">{{ __('Yangilik') ?? 'Yangilik' }}</span>
+                        <span class="absolute left-4 top-4 rounded-full bg-white/20 px-2.5 py-0.5 text-xs font-medium text-white backdrop-blur">{{ $article->category?->label() ?? __('Yangilik') }}</span>
                     </div>
                     <div class="p-6">
                         <p class="text-xs text-gray-400">{{ $article->published_at?->translatedFormat('d F Y') }}</p>

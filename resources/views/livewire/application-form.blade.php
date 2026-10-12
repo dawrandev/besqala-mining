@@ -30,6 +30,14 @@
                 <input type="text" wire:model="location_address" class="w-full rounded-lg border-gray-300 text-sm shadow-theme-xs focus:border-brand-500 focus:ring-brand-500 dark:border-gray-700 dark:bg-gray-800 dark:text-white">
             </div>
             <div>
+                <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-300">{{ __('Kadastr raqami') }}</label>
+                <input type="text" wire:model="cadastre_number" placeholder="35:05:0106003:78" class="w-full rounded-lg border-gray-300 text-sm shadow-theme-xs focus:border-brand-500 focus:ring-brand-500 dark:border-gray-700 dark:bg-gray-800 dark:text-white">
+            </div>
+            <div>
+                <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-300">{{ __('Mulk huquqi') }}</label>
+                <input type="text" wire:model="property_right" class="w-full rounded-lg border-gray-300 text-sm shadow-theme-xs focus:border-brand-500 focus:ring-brand-500 dark:border-gray-700 dark:bg-gray-800 dark:text-white">
+            </div>
+            <div>
                 <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-300">{{ __('Email') }}</label>
                 <input type="email" wire:model="email" class="w-full rounded-lg border-gray-300 text-sm shadow-theme-xs focus:border-brand-500 focus:ring-brand-500 dark:border-gray-700 dark:bg-gray-800 dark:text-white">
             </div>
@@ -74,6 +82,14 @@
             <div>
                 <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-300">{{ __('Bank hisob raqami') }}</label>
                 <input type="text" wire:model="bank_account" class="w-full rounded-lg border-gray-300 text-sm shadow-theme-xs focus:border-brand-500 focus:ring-brand-500 dark:border-gray-700 dark:bg-gray-800 dark:text-white">
+            </div>
+            <div>
+                <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-300">{{ __('Bank muassasasi') }}</label>
+                <input type="text" wire:model="bank_name" placeholder="«Mikrokreditbank»" class="w-full rounded-lg border-gray-300 text-sm shadow-theme-xs focus:border-brand-500 focus:ring-brand-500 dark:border-gray-700 dark:bg-gray-800 dark:text-white">
+            </div>
+            <div>
+                <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-300">{{ __('BTC manzil') }}</label>
+                <input type="text" wire:model="btc_address" placeholder="bc1q..." class="w-full rounded-lg border-gray-300 text-sm shadow-theme-xs focus:border-brand-500 focus:ring-brand-500 dark:border-gray-700 dark:bg-gray-800 dark:text-white">
             </div>
         </div>
     </div>

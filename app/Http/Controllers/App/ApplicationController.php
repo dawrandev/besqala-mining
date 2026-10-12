@@ -39,6 +39,16 @@ class ApplicationController extends Controller
 
         $application->load(['resident', 'applicant', 'events.actor', 'conclusions.expert', 'deficiencies', 'documents']);
 
-        return view('app.applications.show', ['application' => $application]);
+        // Primary verifiable document (certificate preferred) for the preview card.
+        $previewDoc = $application->documents
+            ->first(fn ($doc): bool => $doc->kind->isPubliclyVerifiable());
+
+        return view('app.applications.show', [
+            'application' => $application,
+            'previewDoc' => $previewDoc,
+            'previewQr' => $previewDoc !== null
+                ? \App\Support\Qr::dataUri(route('verify', ['no' => $previewDoc->number]))
+                : null,
+        ]);
     }
 }

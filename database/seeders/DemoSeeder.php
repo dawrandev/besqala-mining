@@ -9,6 +9,7 @@ use App\Enums\ApplicationType;
 use App\Enums\DocumentKind;
 use App\Enums\DocumentStatus;
 use App\Enums\ExpertVerdict;
+use App\Enums\NewsCategory;
 use App\Enums\Region;
 use App\Enums\ResidentStatus;
 use App\Enums\UserRole;
@@ -91,6 +92,8 @@ class DemoSeeder extends Seeder
             'status' => ResidentStatus::Active,
             'address' => 'Qoraqalpog‘iston Respublikasi, Nukus shahri, Doslik ko‘chasi 14-uy',
             'location_address' => 'Qorao‘zak tumani, Sanoat zonasi, 3-uchastka',
+            'cadastre_number' => '35:05:0106003:78',
+            'btc_address' => 'bc1qar4l...d9k1',
             'email' => 'office@araldigital.uz',
             'phone' => '+998 61 222 14 55',
             'founders' => [
@@ -111,6 +114,8 @@ class DemoSeeder extends Seeder
             'status' => ResidentStatus::Suspended,
             'address' => 'Qoraqalpog‘iston Respublikasi, Qo‘ng‘irot tumani, Energetika ko‘chasi 2',
             'location_address' => 'Qo‘ng‘irot tumani, Energetika ko‘chasi 2',
+            'cadastre_number' => '35:08:0204001:12',
+            'btc_address' => 'bc1qkun...7h2a',
             'email' => 'info@kungraddata.uz',
             'phone' => '+998 61 333 22 11',
             'founders' => [['name' => 'Seytov Murat Kadirovich', 'share' => 100]],
@@ -176,11 +181,17 @@ class DemoSeeder extends Seeder
                 'region' => $i === 13 ? Region::Qoraozak : Region::NukusCity,
                 'legal_form' => $aral->legal_form,
                 'address' => $aral->address,
+                'location_address' => $aral->location_address,
+                'cadastre_number' => $aral->cadastre_number,
+                'property_right' => 'Mulk huquqi',
                 'email' => $aral->email,
                 'phone' => $aral->phone,
                 'founders' => $aral->founders,
                 'power_mw' => 18.50,
                 'energy_source' => 'Quyosh',
+                'bank_account' => '202080001007788990'.$i,
+                'bank_name' => '«Mikrokreditbank»',
+                'btc_address' => $aral->btc_address,
             ]);
         }
 
@@ -244,11 +255,17 @@ class DemoSeeder extends Seeder
             'region' => $region,
             'legal_form' => 'MChJ (Mas’uliyati cheklangan jamiyat)',
             'address' => $region->label().', Sanoat zonasi',
+            'location_address' => $region->label().', Agrosanoat hududi',
+            'cadastre_number' => '35:'.random_int(10, 20).':010'.random_int(1000, 9999).':'.random_int(10, 99),
+            'property_right' => 'Mulk huquqi',
             'email' => Str::slug($companyName ?? 'company').'@besqala.uz',
             'phone' => '+998 61 '.random_int(200, 399).' '.random_int(10, 99).' '.random_int(10, 99),
             'founders' => [['name' => 'Ta’sischi '.random_int(1, 99), 'share' => 100]],
             'power_mw' => random_int(5, 40),
             'energy_source' => 'Quyosh',
+            'bank_account' => '20208000'.random_int(100000000000, 999999999999),
+            'bank_name' => '«Mikrokreditbank»',
+            'btc_address' => 'bc1q'.Str::random(6).'...'.Str::random(4),
             'submitted_at' => now()->subDays(random_int(5, 40)),
         ]);
 
@@ -323,30 +340,35 @@ class DemoSeeder extends Seeder
     {
         $news = [
             [
+                'cat' => NewsCategory::Official,
                 'uz' => '«Besqala Mining Valley» maxsus zonasi rasman ish boshladi',
                 'ru' => 'Специальная зона «Besqala Mining Valley» официально начала работу',
                 'en' => '«Besqala Mining Valley» special zone officially launched',
                 'excerpt' => 'Qoraqalpog‘istonda tashkil etilgan maxsus mayning zonasi rezidentlarni qabul qilishni boshladi.',
             ],
             [
+                'cat' => NewsCategory::Residents,
                 'uz' => 'Zona rezidentlari uchun soliq imtiyozlari joriy etildi',
                 'ru' => 'Введены налоговые льготы для резидентов зоны',
                 'en' => 'Tax incentives introduced for zone residents',
                 'excerpt' => 'Rezidentlar uchun maxsus soliq rejimi amal qila boshladi.',
             ],
             [
+                'cat' => NewsCategory::Energy,
                 'uz' => 'Quyosh energiyasi asosidagi yangi mayning markazi ochildi',
                 'ru' => 'Открыт новый майнинг-центр на солнечной энергии',
                 'en' => 'New solar-powered mining center opened',
                 'excerpt' => 'Qayta tiklanuvchi energiya manbalariga asoslangan markaz ishga tushdi.',
             ],
             [
+                'cat' => NewsCategory::Official,
                 'uz' => 'Hujjatlarni QR-kod orqali tekshirish tizimi ishga tushdi',
                 'ru' => 'Запущена система проверки документов по QR-коду',
                 'en' => 'QR-code document verification system launched',
                 'excerpt' => 'Barcha guvohnoma va ruxsatnomalar QR-kod orqali tekshiriladi.',
             ],
             [
+                'cat' => NewsCategory::Energy,
                 'uz' => 'Zonada birinchi ekologik audit o‘tkazildi',
                 'ru' => 'В зоне проведён первый экологический аудит',
                 'en' => 'First environmental audit conducted in the zone',
@@ -357,6 +379,7 @@ class DemoSeeder extends Seeder
         foreach ($news as $i => $item) {
             NewsArticle::query()->create([
                 'slug' => Str::slug($item['en']),
+                'category' => $item['cat'],
                 'title' => ['uz' => $item['uz'], 'ru' => $item['ru'], 'en' => $item['en']],
                 'excerpt' => ['uz' => $item['excerpt'], 'ru' => $item['excerpt'], 'en' => $item['excerpt']],
                 'body' => [

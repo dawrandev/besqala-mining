@@ -26,12 +26,14 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property string|null $phone
  * @property array<int, array{name: string, share: int}>|null $founders
  * @property string|null $energy_source
+ * @property string|null $cadastre_number
+ * @property string|null $btc_address
  * @property \Illuminate\Support\Carbon|null $registered_at
  */
 #[Fillable([
     'owner_id', 'company_name', 'stir', 'region', 'legal_form', 'status',
-    'address', 'location_address', 'email', 'phone', 'founders',
-    'power_mw', 'energy_source', 'mined_total_btc', 'registered_at',
+    'address', 'location_address', 'cadastre_number', 'email', 'phone', 'founders',
+    'power_mw', 'energy_source', 'btc_address', 'mined_total_btc', 'registered_at',
 ])]
 class Resident extends Model
 {

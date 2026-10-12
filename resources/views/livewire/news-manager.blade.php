@@ -70,6 +70,15 @@
                         </div>
                     @endforeach
 
+                    <div>
+                        <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-300">{{ __('Kategoriya') }}</label>
+                        <select wire:model="category" class="w-full rounded-lg border-gray-300 text-sm focus:border-brand-500 focus:ring-brand-500 dark:border-gray-700 dark:bg-gray-800 dark:text-white">
+                            @foreach (\App\Enums\NewsCategory::cases() as $cat)
+                                <option value="{{ $cat->value }}">{{ $cat->label() }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+
                     <label class="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300">
                         <input type="checkbox" wire:model="published" class="rounded border-gray-300 text-brand-500 focus:ring-brand-500"> {{ __('Chop etish') }}
                     </label>

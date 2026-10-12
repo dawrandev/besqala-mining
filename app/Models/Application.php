@@ -26,6 +26,13 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property string|null $stir
  * @property Region $region
  * @property string $legal_form
+ * @property string|null $location_address
+ * @property string|null $cadastre_number
+ * @property string|null $property_right
+ * @property string|null $bank_account
+ * @property string|null $bank_name
+ * @property string|null $btc_address
+ * @property string|null $energy_source
  * @property array<int, array{name: string, share: int}>|null $founders
  * @property \Illuminate\Support\Carbon|null $submitted_at
  * @property \Illuminate\Support\Carbon|null $decided_at
@@ -35,8 +42,9 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 #[Fillable([
     'number', 'applicant_id', 'resident_id', 'type', 'status',
     'company_name', 'stir', 'region', 'legal_form', 'address', 'location_address',
-    'email', 'phone', 'founders', 'equipment', 'power_mw', 'energy_source',
-    'bank_account', 'attachments', 'submitted_at', 'decided_at',
+    'cadastre_number', 'property_right', 'email', 'phone', 'founders', 'equipment',
+    'power_mw', 'energy_source', 'bank_account', 'bank_name', 'btc_address',
+    'attachments', 'submitted_at', 'decided_at',
 ])]
 class Application extends Model
 {

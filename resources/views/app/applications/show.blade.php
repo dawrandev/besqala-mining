@@ -45,44 +45,129 @@
             @endif
         </div>
 
-        <div class="card p-6">
-            <div class="flex flex-wrap items-start justify-between gap-4">
-                <div>
+        {{-- Header --}}
+        <div class="flex flex-wrap items-start justify-between gap-4">
+            <div>
+                <div class="flex items-center gap-3">
+                    <h1 class="text-xl font-bold text-gray-900 dark:text-white">{{ $application->company_name }}</h1>
+                    <x-ui.badge :color="$application->status->color()">{{ $application->status->label() }}</x-ui.badge>
+                </div>
+                <p class="mt-1 font-mono text-sm text-gray-400">{{ $application->number }} · {{ $application->type->label() }}</p>
+            </div>
+        </div>
+
+        {{-- Certificate preview with QR --}}
+        @if($previewDoc)
+            <div class="card overflow-hidden">
+                <div class="flex items-center justify-between gap-3 bg-gradient-to-r from-brand-600 to-brand-800 px-6 py-4 text-white">
                     <div class="flex items-center gap-3">
-                        <h1 class="text-xl font-bold text-gray-900 dark:text-white">{{ $application->company_name }}</h1>
-                        <x-ui.badge :color="$application->status->color()">{{ $application->status->label() }}</x-ui.badge>
+                        <span class="flex h-10 w-10 items-center justify-center rounded-lg bg-white/15"><x-icon name="doc" class="h-5 w-5" /></span>
+                        <div>
+                            <p class="text-xs uppercase tracking-wide text-white/70">Besqala Mining Valley</p>
+                            <p class="font-semibold">{{ $previewDoc->kind->label() }}</p>
+                        </div>
                     </div>
-                    <p class="mt-1 font-mono text-sm text-gray-400">{{ $application->number }} · {{ $application->type->label() }}</p>
+                    <span class="rounded-full bg-white/15 px-2.5 py-0.5 text-xs font-medium">{{ $previewDoc->status->label() }}</span>
+                </div>
+                <div class="grid gap-6 p-6 sm:grid-cols-[1fr_auto]">
+                    <dl class="grid gap-4 sm:grid-cols-2">
+                        <div><dt class="text-xs text-gray-400">{{ __('Egasi') }}</dt><dd class="text-sm font-medium text-gray-900 dark:text-white">{{ $application->company_name }}</dd></div>
+                        <div><dt class="text-xs text-gray-400">{{ __('Raqam') }}</dt><dd class="font-mono text-sm font-semibold text-brand-600 dark:text-brand-400">{{ $previewDoc->number }}</dd></div>
+                        <div><dt class="text-xs text-gray-400">{{ __('Berilgan sana') }}</dt><dd class="text-sm font-medium text-gray-800 dark:text-gray-200">{{ optional($previewDoc->issued_at)->translatedFormat('d M Y') ?? '—' }}</dd></div>
+                        <div><dt class="text-xs text-gray-400">{{ __('Amal qilish muddati') }}</dt><dd class="text-sm font-medium text-gray-800 dark:text-gray-200">{{ optional($previewDoc->expires_at)->translatedFormat('d M Y') ?? '—' }}</dd></div>
+                        <div class="sm:col-span-2 border-t border-gray-100 pt-3 dark:border-gray-800">
+                            <a href="{{ route('app.documents.download', $previewDoc) }}" class="inline-flex items-center gap-2 text-sm font-semibold text-brand-600 hover:text-brand-700 dark:text-brand-400"><x-icon name="doc" class="h-4 w-4" /> {{ __('Rasmiy hujjatni ochish — PDF') }}</a>
+                        </div>
+                    </dl>
+                    <div class="text-center">
+                        <img src="{{ $previewQr }}" alt="QR" class="mx-auto h-28 w-28">
+                        <p class="mt-1 text-xs text-gray-400">{{ __('Haqiqiyligini tekshirish') }}</p>
+                    </div>
                 </div>
             </div>
-            <dl class="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                @foreach ([
-                    [__('STIR'), $application->stir ?? '—'],
-                    [__('Hudud'), $application->region->label()],
-                    [__('Tashkiliy shakl'), $application->legal_form],
-                    [__('Quvvat'), $application->power_mw ? number_format((float)$application->power_mw, 1).' MW' : '—'],
-                    [__('Energiya manbai'), $application->energy_source ?? '—'],
-                    [__('Mayning joylashuvi'), $application->location_address ?? '—'],
-                    [__('Bank hisob raqami'), $application->bank_account ?? '—'],
-                    [__('Topshirilgan'), $application->submitted_at?->translatedFormat('d M Y') ?? '—'],
-                ] as [$k, $v])
-                    <div><dt class="text-xs text-gray-400">{{ $k }}</dt><dd class="text-sm font-medium text-gray-800 dark:text-gray-200">{{ $v }}</dd></div>
-                @endforeach
-            </dl>
+        @endif
 
-            @if($application->founders)
-                <div class="mt-6 border-t border-gray-100 pt-4 dark:border-gray-800">
-                    <p class="mb-2 text-xs font-semibold uppercase tracking-wide text-gray-400">{{ __('Ta‘sischilar') }}</p>
-                    <div class="space-y-1">
-                        @foreach ($application->founders as $founder)
-                            <div class="flex justify-between text-sm">
-                                <span class="text-gray-700 dark:text-gray-300">{{ $founder['name'] ?? '' }}</span>
-                                <span class="font-medium text-gray-900 dark:text-white">{{ $founder['share'] ?? 0 }}%</span>
-                            </div>
+        {{-- Tabbed details --}}
+        <div class="card" x-data="{ tab: 'info' }">
+            <div class="flex gap-1 overflow-x-auto border-b border-gray-100 px-4 dark:border-gray-800">
+                @foreach ([
+                    'info' => __('Ma‘lumotlar'),
+                    'founders' => __('Rahbariyat'),
+                    'equipment' => __('Uskunalar'),
+                    'docs' => __('Hujjatlar').' ('.$application->documents->count().')',
+                ] as $key => $label)
+                    <button type="button" @click="tab = '{{ $key }}'"
+                        :class="tab === '{{ $key }}' ? 'border-brand-500 text-brand-600 dark:text-brand-400' : 'border-transparent text-gray-500 hover:text-gray-700 dark:hover:text-gray-300'"
+                        class="whitespace-nowrap border-b-2 px-3 py-3 text-sm font-medium">{{ $label }}</button>
+                @endforeach
+            </div>
+
+            <div class="p-6">
+                {{-- Ma'lumotlar --}}
+                <div x-show="tab === 'info'" class="space-y-6">
+                    <dl class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                        @foreach ([
+                            [__('STIR'), $application->stir ?? '—'],
+                            [__('Tashkiliy shakl'), $application->legal_form],
+                            [__('Hudud'), $application->region->label()],
+                            [__('Manzil'), $application->address ?? '—'],
+                            [__('Email'), $application->email ?? '—'],
+                            [__('Telefon'), $application->phone ?? '—'],
+                            [__('Bank hisob raqami'), $application->bank_account ?? '—'],
+                            [__('Bank muassasasi'), $application->bank_name ?? '—'],
+                            [__('BTC manzil'), $application->btc_address ?? '—'],
+                            [__('Topshirilgan'), $application->submitted_at?->translatedFormat('d M Y') ?? '—'],
+                        ] as [$k, $v])
+                            <div><dt class="text-xs text-gray-400">{{ $k }}</dt><dd class="text-sm font-medium break-words text-gray-800 dark:text-gray-200">{{ $v }}</dd></div>
                         @endforeach
-                    </div>
+                    </dl>
                 </div>
-            @endif
+
+                {{-- Rahbariyat (founders) --}}
+                <div x-show="tab === 'founders'" x-cloak class="space-y-2">
+                    @forelse ($application->founders ?? [] as $founder)
+                        <div class="flex items-center justify-between rounded-xl border border-gray-100 px-4 py-3 dark:border-gray-800">
+                            <span class="text-sm text-gray-700 dark:text-gray-300">{{ $founder['name'] ?? '' }}</span>
+                            <span class="text-sm font-semibold text-gray-900 dark:text-white">{{ $founder['share'] ?? 0 }}%</span>
+                        </div>
+                    @empty
+                        <p class="text-sm text-gray-400">{{ __('Ma‘lumot yo‘q.') }}</p>
+                    @endforelse
+                </div>
+
+                {{-- Uskunalar (equipment / location) --}}
+                <div x-show="tab === 'equipment'" x-cloak>
+                    <dl class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                        @foreach ([
+                            [__('Mayning joylashuvi'), $application->location_address ?? '—'],
+                            [__('Kadastr raqami'), $application->cadastre_number ?? '—'],
+                            [__('Mulk huquqi'), $application->property_right ?? '—'],
+                            [__('Quvvat'), $application->power_mw ? number_format((float)$application->power_mw, 1).' MW' : '—'],
+                            [__('Energiya manbai'), $application->energy_source ?? '—'],
+                        ] as [$k, $v])
+                            <div><dt class="text-xs text-gray-400">{{ $k }}</dt><dd class="text-sm font-medium text-gray-800 dark:text-gray-200">{{ $v }}</dd></div>
+                        @endforeach
+                    </dl>
+                </div>
+
+                {{-- Hujjatlar --}}
+                <div x-show="tab === 'docs'" x-cloak class="divide-y divide-gray-100 dark:divide-gray-800">
+                    @forelse ($application->documents as $doc)
+                        <div class="flex items-center justify-between gap-3 py-3 first:pt-0">
+                            <div class="min-w-0">
+                                <span class="font-mono text-sm font-medium text-gray-700 dark:text-gray-300">{{ $doc->number }}</span>
+                                <span class="ml-2 text-xs text-gray-400">{{ $doc->kind->label() }}</span>
+                            </div>
+                            <div class="flex shrink-0 items-center gap-3">
+                                <a href="{{ route('app.documents.download', $doc) }}" class="inline-flex items-center gap-1 text-sm font-medium text-gray-500 hover:text-brand-600 dark:text-gray-400"><x-icon name="doc" class="h-4 w-4" /> PDF</a>
+                                <a href="{{ route('verify', ['no' => $doc->number]) }}" class="text-sm font-medium text-brand-600 dark:text-brand-400">{{ __('Tekshirish') }}</a>
+                            </div>
+                        </div>
+                    @empty
+                        <p class="py-4 text-sm text-gray-400">{{ __('Hujjatlar yo‘q.') }}</p>
+                    @endforelse
+                </div>
+            </div>
         </div>
 
         {{-- Role-based workflow actions --}}
@@ -132,24 +217,6 @@
                                 <ul class="list-inside list-disc space-y-1 text-sm text-gray-700 dark:text-gray-300">
                                     @foreach ($deficiency->items as $item)<li>{{ $item }}</li>@endforeach
                                 </ul>
-                            </div>
-                        @endforeach
-                    </div>
-                @endif
-
-                @if($application->documents->isNotEmpty())
-                    <div class="card p-6">
-                        <h2 class="mb-3 font-semibold text-gray-900 dark:text-white">{{ __('Hujjatlar') }}</h2>
-                        @foreach ($application->documents as $doc)
-                            <div class="flex items-center justify-between gap-3 py-2">
-                                <div class="min-w-0">
-                                    <span class="font-mono text-sm font-medium text-gray-700 dark:text-gray-300">{{ $doc->number }}</span>
-                                    <span class="ml-2 text-xs text-gray-400">{{ $doc->kind->label() }}</span>
-                                </div>
-                                <div class="flex shrink-0 items-center gap-3">
-                                    <a href="{{ route('app.documents.download', $doc) }}" class="inline-flex items-center gap-1 text-sm font-medium text-gray-500 hover:text-brand-600 dark:text-gray-400"><x-icon name="doc" class="h-4 w-4" /> PDF</a>
-                                    <a href="{{ route('verify', ['no' => $doc->number]) }}" class="text-sm font-medium text-brand-600 dark:text-brand-400">{{ __('Tekshirish') }}</a>
-                                </div>
                             </div>
                         @endforeach
                     </div>
