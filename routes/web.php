@@ -16,6 +16,7 @@ use App\Http\Controllers\App\ResidentController;
 use App\Http\Controllers\App\ReviewController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\Auth\RegisteredUserController;
+use App\Http\Controllers\DocumentController;
 use App\Http\Controllers\LocaleController;
 use App\Http\Controllers\Public\HomeController;
 use App\Http\Controllers\Public\LeadershipController;
@@ -37,6 +38,7 @@ Route::get('/news', [NewsController::class, 'index'])->name('news.index');
 Route::get('/news/{slug}', [NewsController::class, 'show'])->name('news.show');
 Route::get('/registry', [RegistryController::class, 'index'])->name('registry');
 Route::get('/verify', [VerifyController::class, 'index'])->name('verify');
+Route::get('/verify/{number}/document.pdf', [DocumentController::class, 'verified'])->name('verify.pdf');
 
 Route::post('/locale/{locale}', [LocaleController::class, 'update'])->name('locale.update');
 
@@ -98,4 +100,7 @@ Route::middleware('auth')->prefix('app')->name('app.')->group(function (): void 
 
     // Application detail is reachable by staff and the owning applicant.
     Route::get('/a/{application}', [ApplicationController::class, 'show'])->name('applications.show');
+
+    // Document PDF download (staff or owning applicant; policy-guarded).
+    Route::get('/documents/{document}/pdf', [DocumentController::class, 'download'])->name('documents.download');
 });

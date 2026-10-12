@@ -12,6 +12,18 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
+/**
+ * @property int $id
+ * @property string $number
+ * @property DocumentKind $kind
+ * @property DocumentStatus $status
+ * @property int|null $resident_id
+ * @property int|null $application_id
+ * @property array<string, mixed>|null $payload
+ * @property \Illuminate\Support\Carbon|null $issued_at
+ * @property \Illuminate\Support\Carbon|null $expires_at
+ * @property-read Resident|null $resident
+ */
 #[Fillable([
     'number', 'kind', 'status', 'resident_id', 'application_id', 'issued_by',
     'payload', 'template_version', 'sha256', 'issued_at', 'expires_at',

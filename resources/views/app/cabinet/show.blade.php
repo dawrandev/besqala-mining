@@ -33,7 +33,10 @@
                             <p class="font-mono text-sm font-semibold text-gray-800 dark:text-gray-200">{{ $doc->number }}</p>
                             <p class="text-xs text-gray-400">{{ $doc->kind->label() }} · {{ $doc->issued_at?->translatedFormat('d M Y') }}</p>
                         </div>
-                        <a href="{{ route('verify', ['no' => $doc->number]) }}" class="text-sm font-medium text-brand-600 hover:text-brand-700 dark:text-brand-400">{{ __('Tekshirish') }}</a>
+                        <div class="flex items-center gap-4">
+                            <a href="{{ route('app.documents.download', $doc) }}" class="inline-flex items-center gap-1 text-sm font-medium text-gray-500 hover:text-brand-600 dark:text-gray-400"><x-icon name="doc" class="h-4 w-4" /> PDF</a>
+                            <a href="{{ route('verify', ['no' => $doc->number]) }}" class="text-sm font-medium text-brand-600 hover:text-brand-700 dark:text-brand-400">{{ __('Tekshirish') }}</a>
+                        </div>
                     </div>
                 @empty
                     <p class="px-6 py-8 text-center text-sm text-gray-400">{{ __('Hujjatlar yo‘q.') }}</p>

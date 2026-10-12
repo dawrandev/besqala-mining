@@ -40,6 +40,13 @@
                                 </div>
                             @endforeach
                         </dl>
+                        @if($document->kind->isPubliclyVerifiable())
+                            <div class="border-t border-gray-100 px-6 py-4 dark:border-gray-800">
+                                <a href="{{ route('verify.pdf', ['number' => $document->number]) }}" class="inline-flex items-center gap-2 rounded-xl bg-brand-500 px-5 py-2.5 text-sm font-semibold text-white hover:bg-brand-600">
+                                    <x-icon name="doc" class="h-4 w-4" /> {{ __('Hujjatni yuklab olish (PDF)') }}
+                                </a>
+                            </div>
+                        @endif
                     </div>
                 @else
                     <div class="card flex items-center gap-3 border-error-200 p-6 dark:border-error-500/30">
