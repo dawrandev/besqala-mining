@@ -1,7 +1,7 @@
 <x-layouts.public>
     <section class="mx-auto max-w-3xl px-4 py-16 sm:px-6 lg:px-8">
         <div class="text-center">
-            <span class="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-brand-50 text-brand-600 dark:bg-brand-500/15 dark:text-brand-400">
+            <span class="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-accent-50 text-accent-600 dark:bg-accent-500/15 dark:text-accent-400">
                 <x-icon name="verify" class="h-7 w-7" />
             </span>
             <h1 class="mt-5 text-3xl font-bold text-gray-900 dark:text-white">{{ __('Hujjatni tekshirish') }}</h1>
@@ -10,8 +10,8 @@
 
         <form method="GET" class="mx-auto mt-8 flex max-w-xl gap-3">
             <input type="text" name="no" value="{{ $number }}" placeholder="G-2026-0001"
-                class="flex-1 rounded-xl border-gray-300 bg-white text-center font-mono text-sm shadow-theme-xs focus:border-brand-500 focus:ring-brand-500 dark:border-gray-700 dark:bg-gray-900 dark:text-white">
-            <button type="submit" class="rounded-xl bg-brand-500 px-6 py-3 text-sm font-semibold text-white hover:bg-brand-600">{{ __('Tekshirish') }}</button>
+                class="flex-1 rounded-xl border-gray-300 bg-white text-center font-mono text-sm shadow-theme-xs focus:border-accent-500 focus:ring-accent-500 dark:border-gray-700 dark:bg-gray-900 dark:text-white">
+            <button type="submit" class="rounded-xl bg-accent-500 px-6 py-3 text-sm font-semibold text-white hover:bg-accent-600">{{ __('Tekshirish') }}</button>
         </form>
 
         @if($searched)
@@ -42,7 +42,7 @@
                         </dl>
                         @if($document->kind->isPubliclyVerifiable())
                             <div class="border-t border-gray-100 px-6 py-4 dark:border-gray-800">
-                                <a href="{{ route('verify.pdf', ['number' => $document->number]) }}" class="inline-flex items-center gap-2 rounded-xl bg-brand-500 px-5 py-2.5 text-sm font-semibold text-white hover:bg-brand-600">
+                                <a href="{{ route('verify.pdf', ['number' => $document->number]) }}" class="inline-flex items-center gap-2 rounded-xl bg-accent-500 px-5 py-2.5 text-sm font-semibold text-white hover:bg-accent-600">
                                     <x-icon name="doc" class="h-4 w-4" /> {{ __('Hujjatni yuklab olish (PDF)') }}
                                 </a>
                             </div>

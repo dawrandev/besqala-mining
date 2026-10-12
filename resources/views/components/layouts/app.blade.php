@@ -68,10 +68,10 @@
 
         <div class="flex items-center gap-2 pt-8 pb-7">
             <a href="{{ route('app.dashboard') }}" class="flex items-center gap-2.5">
-                <span class="flex h-9 w-9 items-center justify-center rounded-lg bg-brand-500 text-white shadow-theme-xs">
+                <span class="flex h-9 w-9 items-center justify-center rounded-lg bg-gradient-to-br from-accent-500 to-accent-700 text-white shadow-theme-xs">
                     <x-icon name="bitcoin" class="h-5 w-5" />
                 </span>
-                <span class="text-lg font-bold tracking-tight text-gray-900 dark:text-white">Besqala<span class="text-brand-500">Mining</span></span>
+                <span class="text-lg font-bold tracking-tight text-gray-900 dark:text-white">Besqala<span class="text-accent-600 dark:text-accent-400">Mining</span></span>
             </a>
         </div>
 

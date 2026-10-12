@@ -58,6 +58,20 @@
     --color-brand-900: #262e89;
     --color-brand-950: #161950;
 
+    /* Accent — Besqala emerald/teal identity (public site + brand logo). */
+    --color-accent-25: #f3fdf9;
+    --color-accent-50: #edfcf4;
+    --color-accent-100: #d4f7e4;
+    --color-accent-200: #aceccb;
+    --color-accent-300: #76dcac;
+    --color-accent-400: #3fc289;
+    --color-accent-500: #1aa06d;
+    --color-accent-600: #0e8159;
+    --color-accent-700: #0c6749;
+    --color-accent-800: #0d513b;
+    --color-accent-900: #0c4332;
+    --color-accent-950: #05261d;
+
     --color-blue-light-25: #f5fbff;
     --color-blue-light-50: #f0f9ff;
     --color-blue-light-100: #e0f2fe;

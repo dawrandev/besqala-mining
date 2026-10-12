@@ -1,13 +1,13 @@
 <x-layouts.public>
     @php $t = fn ($arr) => is_array($arr) ? ($arr[app()->getLocale()] ?? $arr['uz'] ?? '') : $arr; @endphp
     <article class="mx-auto max-w-3xl px-4 py-12 sm:px-6 lg:px-8">
-        <a href="{{ route('news.index') }}" class="inline-flex items-center gap-1 text-sm font-medium text-gray-500 hover:text-brand-600">
+        <a href="{{ route('news.index') }}" class="inline-flex items-center gap-1 text-sm font-medium text-gray-500 hover:text-accent-600">
             <x-icon name="arrow-right" class="h-4 w-4 rotate-180" /> {{ __('Yangiliklar') }}
         </a>
-        <p class="mt-6 text-sm text-brand-600 dark:text-brand-400">{{ $article->published_at?->translatedFormat('d F Y') }}</p>
+        <p class="mt-6 text-sm text-accent-600 dark:text-accent-400">{{ $article->published_at?->translatedFormat('d F Y') }}</p>
         <h1 class="mt-2 text-3xl font-bold leading-tight text-gray-900 dark:text-white sm:text-4xl">{{ $t($article->title) }}</h1>
-        <div class="mt-6 flex h-56 items-center justify-center rounded-2xl bg-gradient-to-br from-brand-500/10 to-brand-700/10">
-            <x-icon name="news" class="h-14 w-14 text-brand-400" />
+        <div class="mt-6 flex h-56 items-center justify-center rounded-2xl bg-gradient-to-br from-accent-500/10 to-accent-700/10">
+            <x-icon name="news" class="h-14 w-14 text-accent-400" />
         </div>
         <div class="prose prose-gray mt-8 max-w-none text-gray-700 dark:prose-invert dark:text-gray-300">
             @foreach (preg_split('/\n+/', $t($article->body)) as $para)

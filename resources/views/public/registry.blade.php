@@ -11,16 +11,16 @@
                     <svg class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
                 </span>
                 <input type="search" name="q" value="{{ $search }}" placeholder="{{ __('Nom, STIR yoki guvohnoma...') }}"
-                    class="w-full rounded-xl border-gray-300 bg-white pl-10 text-sm shadow-theme-xs focus:border-brand-500 focus:ring-brand-500 dark:border-gray-700 dark:bg-gray-900 dark:text-white">
+                    class="w-full rounded-xl border-gray-300 bg-white pl-10 text-sm shadow-theme-xs focus:border-accent-500 focus:ring-accent-500 dark:border-gray-700 dark:bg-gray-900 dark:text-white">
             </div>
             <select name="region" onchange="this.form.submit()"
-                class="rounded-xl border-gray-300 bg-white text-sm shadow-theme-xs focus:border-brand-500 focus:ring-brand-500 dark:border-gray-700 dark:bg-gray-900 dark:text-white">
+                class="rounded-xl border-gray-300 bg-white text-sm shadow-theme-xs focus:border-accent-500 focus:ring-accent-500 dark:border-gray-700 dark:bg-gray-900 dark:text-white">
                 <option value="">{{ __('Barcha hududlar') }}</option>
                 @foreach (\App\Enums\Region::options() as $value => $label)
                     <option value="{{ $value }}" @selected($region === $value)>{{ $label }}</option>
                 @endforeach
             </select>
-            <button type="submit" class="rounded-xl bg-brand-500 px-5 py-2.5 text-sm font-semibold text-white hover:bg-brand-600">{{ __('Qidirish') }}</button>
+            <button type="submit" class="rounded-xl bg-accent-500 px-5 py-2.5 text-sm font-semibold text-white hover:bg-accent-600">{{ __('Qidirish') }}</button>
         </form>
 
         <div class="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
@@ -28,7 +28,7 @@
                 @php $cert = $resident->documents->first(); @endphp
                 <div class="card p-6">
                     <div class="flex items-start justify-between">
-                        <span class="flex h-11 w-11 items-center justify-center rounded-xl bg-brand-50 text-brand-600 dark:bg-brand-500/15 dark:text-brand-400">
+                        <span class="flex h-11 w-11 items-center justify-center rounded-xl bg-accent-50 text-accent-600 dark:bg-accent-500/15 dark:text-accent-400">
                             <x-icon name="building" />
                         </span>
                         <x-ui.badge :color="$resident->status->color()">
@@ -47,7 +47,7 @@
                                 <p class="font-mono text-xs font-semibold text-gray-700 dark:text-gray-300">{{ $cert->number }}</p>
                                 <p class="text-xs text-gray-400">{{ __('Amal qiladi') }}: {{ $cert->expires_at?->translatedFormat('d M Y') }}</p>
                             </div>
-                            <a href="{{ route('verify', ['no' => $cert->number]) }}" class="text-gray-400 hover:text-brand-600"><x-icon name="arrow-right" class="h-4 w-4" /></a>
+                            <a href="{{ route('verify', ['no' => $cert->number]) }}" class="text-gray-400 hover:text-accent-600"><x-icon name="arrow-right" class="h-4 w-4" /></a>
                         </div>
                     @endif
                 </div>

@@ -29,7 +29,7 @@
                 ] as [$route, $label])
                     <a href="{{ route($route) }}"
                        class="rounded-lg px-3 py-2 text-sm font-medium transition-colors
-                            {{ request()->routeIs($route) ? 'text-brand-600 dark:text-brand-400' : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-white/5' }}">
+                            {{ request()->routeIs($route) ? 'text-accent-600 dark:text-accent-400' : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-white/5' }}">
                         {{ $label }}
                     </a>
                 @endforeach
@@ -38,9 +38,9 @@
             <div class="flex items-center gap-2">
                 <x-lang-switcher class="hidden sm:inline-flex" />
                 @auth
-                    <a href="{{ route('app.dashboard') }}" class="hidden rounded-lg bg-brand-500 px-4 py-2 text-sm font-semibold text-white shadow-theme-sm transition hover:bg-brand-600 sm:inline-block">{{ __('Kabinet') }}</a>
+                    <a href="{{ route('app.dashboard') }}" class="hidden rounded-lg bg-accent-500 px-4 py-2 text-sm font-semibold text-white shadow-theme-sm transition hover:bg-accent-600 sm:inline-block">{{ __('Kabinet') }}</a>
                 @else
-                    <a href="{{ route('login') }}" class="hidden rounded-lg bg-brand-500 px-4 py-2 text-sm font-semibold text-white shadow-theme-sm transition hover:bg-brand-600 sm:inline-block">{{ __('Kirish') }}</a>
+                    <a href="{{ route('login') }}" class="hidden rounded-lg bg-accent-500 px-4 py-2 text-sm font-semibold text-white shadow-theme-sm transition hover:bg-accent-600 sm:inline-block">{{ __('Kirish') }}</a>
                 @endauth
                 <button @click="open = !open" class="rounded-lg p-2 text-gray-600 hover:bg-gray-100 lg:hidden dark:text-gray-300 dark:hover:bg-white/5" aria-label="Menu">
                     <svg class="h-6 w-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" d="M4 6h16M4 12h16M4 18h16"/></svg>
@@ -54,11 +54,11 @@
                     ['home', __('Bosh sahifa')], ['about', __('Biz haqimizda')], ['news.index', __('Yangiliklar')],
                     ['leadership', __('Rahbariyat')], ['registry', __('Reestr')], ['verify', __('Tekshirish')],
                 ] as [$route, $label])
-                    <a href="{{ route($route) }}" class="block rounded-lg px-3 py-2 text-sm font-medium {{ request()->routeIs($route) ? 'bg-brand-50 text-brand-700 dark:bg-brand-500/15 dark:text-brand-400' : 'text-gray-600 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-white/5' }}">{{ $label }}</a>
+                    <a href="{{ route($route) }}" class="block rounded-lg px-3 py-2 text-sm font-medium {{ request()->routeIs($route) ? 'bg-accent-50 text-accent-700 dark:bg-accent-500/15 dark:text-accent-400' : 'text-gray-600 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-white/5' }}">{{ $label }}</a>
                 @endforeach
                 <div class="flex items-center justify-between pt-2">
                     <x-lang-switcher />
-                    <a href="{{ auth()->check() ? route('app.dashboard') : route('login') }}" class="rounded-lg bg-brand-500 px-4 py-2 text-sm font-semibold text-white">{{ auth()->check() ? __('Kabinet') : __('Kirish') }}</a>
+                    <a href="{{ auth()->check() ? route('app.dashboard') : route('login') }}" class="rounded-lg bg-accent-500 px-4 py-2 text-sm font-semibold text-white">{{ auth()->check() ? __('Kabinet') : __('Kirish') }}</a>
                 </div>
             </nav>
         </div>
@@ -79,16 +79,16 @@
                     <div>
                         <p class="font-semibold text-gray-900 dark:text-white">{{ __('Bo‘limlar') }}</p>
                         <ul class="mt-3 space-y-2">
-                            <li><a href="{{ route('registry') }}" class="text-gray-500 hover:text-brand-600 dark:text-gray-400">{{ __('Ochiq reestr') }}</a></li>
-                            <li><a href="{{ route('verify') }}" class="text-gray-500 hover:text-brand-600 dark:text-gray-400">{{ __('Hujjatni tekshirish') }}</a></li>
-                            <li><a href="{{ route('news.index') }}" class="text-gray-500 hover:text-brand-600 dark:text-gray-400">{{ __('Yangiliklar') }}</a></li>
+                            <li><a href="{{ route('registry') }}" class="text-gray-500 hover:text-accent-600 dark:text-gray-400">{{ __('Ochiq reestr') }}</a></li>
+                            <li><a href="{{ route('verify') }}" class="text-gray-500 hover:text-accent-600 dark:text-gray-400">{{ __('Hujjatni tekshirish') }}</a></li>
+                            <li><a href="{{ route('news.index') }}" class="text-gray-500 hover:text-accent-600 dark:text-gray-400">{{ __('Yangiliklar') }}</a></li>
                         </ul>
                     </div>
                     <div>
                         <p class="font-semibold text-gray-900 dark:text-white">{{ __('Tashkilot') }}</p>
                         <ul class="mt-3 space-y-2">
-                            <li><a href="{{ route('about') }}" class="text-gray-500 hover:text-brand-600 dark:text-gray-400">{{ __('Biz haqimizda') }}</a></li>
-                            <li><a href="{{ route('leadership') }}" class="text-gray-500 hover:text-brand-600 dark:text-gray-400">{{ __('Rahbariyat') }}</a></li>
+                            <li><a href="{{ route('about') }}" class="text-gray-500 hover:text-accent-600 dark:text-gray-400">{{ __('Biz haqimizda') }}</a></li>
+                            <li><a href="{{ route('leadership') }}" class="text-gray-500 hover:text-accent-600 dark:text-gray-400">{{ __('Rahbariyat') }}</a></li>
                         </ul>
                     </div>
                 </div>
