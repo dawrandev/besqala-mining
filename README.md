@@ -1,58 +1,208 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Besqala Mining Valley
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+> Maxsus mayning zonasi rezidentlarini ro‘yxatdan o‘tkazish, ruxsatnomalar
+> berish va faoliyatni nazorat qilishning yagona raqamli platformasi.
+>
+> A single digital platform for registering residents of a special crypto-mining
+> zone, issuing permits, and overseeing their activity — built for the
+> Karakalpakstan special mining zone (Resolution PQ‑143, 17.04.2026).
 
-## About Laravel
+Laravel 13 · Livewire 4 · Tailwind CSS v4 · Alpine.js · ApexCharts
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+---
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## Mundarija / Contents
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+- [Imkoniyatlar / Features](#imkoniyatlar--features)
+- [Texnologiyalar / Tech stack](#texnologiyalar--tech-stack)
+- [Rollar va demo hisoblar / Roles & demo accounts](#rollar-va-demo-hisoblar--roles--demo-accounts)
+- [Ariza workflow / Application workflow](#ariza-workflow--application-workflow)
+- [Lokal o‘rnatish / Local setup](#lokal-ornatish--local-setup)
+- [Test va sifat / Testing & quality](#test-va-sifat--testing--quality)
+- [Loyiha tuzilishi / Project structure](#loyiha-tuzilishi--project-structure)
+- [Ko‘p tillilik / Localization](#kop-tillilik--localization)
+- [Deploy](#deploy)
+- [Hujjatlar / Docs](#hujjatlar--docs)
 
-## Learning Laravel
+---
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+## Imkoniyatlar / Features
 
-In addition, [Laracasts](https://laracasts.com) contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+**Ochiq (public) sayt** — zamonaviy emerald/teal dizayn:
+- Bosh sahifa (hero, xizmat ko‘rsatkichlari, ruxsat etilgan energiya turlari,
+  rezident majburiyatlari / taqiqlar, jarayon bosqichlari, yangiliklar, CTA)
+- Biz haqimizda (missiya, strategik vazifa, qadriyatlar, tarix, bog‘lanish)
+- Rahbariyat · Yangiliklar (kategoriyalar bilan) · **Ochiq reestr** (qidiruv + filtr)
+- **Hujjatni tekshirish** — guvohnoma/ruxsatnoma raqami yoki QR orqali
 
-You can also watch bite-sized lessons with real-world projects on [Laravel Learn](https://laravel.com/learn), where you will be guided through building a Laravel application from scratch while learning PHP fundamentals.
+**Boshqaruv panellari (TailAdmin dizayni)** — 5 rol:
+- Rol asosidagi sidebar, qidiruv, dark-mode, bildirishnoma va profil menyulari
+- Dashboardlarda **ApexCharts** grafiklar (oylik arizalar, status taqsimoti)
+- Ariza detali: **progress stepper**, tabli bo‘limlar (Ma’lumotlar / Rahbariyat /
+  Uskunalar / Hujjatlar), **QR-kodli guvohnoma preview** kartasi
+- To‘liq ariza workflow’i (quyida)
 
-## Agentic Development
+**Hujjatlar**
+- Guvohnoma, ruxsatnoma, ekspert xulosasi, kamchilik xabarnomasi, dalolatnoma
+- **QR-kodli PDF** (dompdf + endroid/qr-code), ommaviy va egaga yuklab olish
+- Har bir hujjat raqam + QR orqali ochiq tekshiriladi
 
-Laravel's predictable structure and conventions make it ideal for AI coding agents like Claude Code, Cursor, and GitHub Copilot. Install [Laravel Boost](https://laravel.com/docs/ai) to supercharge your AI workflow:
+**Boshqa**
+- Trilingual interfeys (uz/ru/en) + trilingual kontent (JSON ustunlar)
+- Karakalpakstanning 15 tumani, demo rezidentlar va arizalar
 
-```bash
-composer require laravel/boost --dev
+---
 
-php artisan boost:install
+## Texnologiyalar / Tech stack
+
+| Qatlam | Texnologiya |
+|--------|-------------|
+| Backend | PHP 8.3, Laravel 13 |
+| Interaktivlik | Livewire 4 + Alpine.js |
+| Frontend | Blade, Tailwind CSS v4 (Vite), Outfit font |
+| Grafiklar | ApexCharts |
+| PDF / QR | barryvdh/laravel-dompdf, endroid/qr-code (GD) |
+| Ma’lumotlar bazasi | SQLite (dev) · MySQL 8 / MariaDB (prod) |
+| Test / sifat | Pest 4, Larastan (PHPStan lvl 5), Laravel Pint |
+
+Admin panel dizayni [TailAdmin](https://tailadmin.com) (Free, MIT) dizayn
+tizimidan port qilingan; ochiq sayt bespoke.
+
+---
+
+## Rollar va demo hisoblar / Roles & demo accounts
+
+Parol (hammasi uchun): **`demo1234`**
+
+| Rol | Email | Vazifasi |
+|-----|-------|----------|
+| Talabgor / Rezident | `aral@besqala.uz` | Ariza topshirish, shaxsiy kabinet, hujjatlar |
+| Direksiya | `direksiya@besqala.uz` | To‘liqlik tekshiruvi, rezidentlar, hisobotlar |
+| Ekspert | `expert@besqala.uz` | Arizalarni ko‘rib chiqish, xulosa berish |
+| Vakolatli organ | `authority@besqala.uz` | Ruxsatnoma berish, nazorat |
+| Admin (kontent) | `admin@besqala.uz` | Yangiliklar, rahbariyat, biz haqimizda |
+
+Kirish sahifasida har bir rol uchun bir bosishli demo tugmalari mavjud.
+
+---
+
+## Ariza workflow / Application workflow
+
+```
+qoralama → topshirildi → to‘liqlik tekshiruvi → ekspert xulosasi
+        → vakolatli organ → ruxsatnoma berildi → ro‘yxatga olingan
+                                              ↘ rad etilgan
+            (kamchilik xabarnomasi istalgan bosqichda qaytarishi mumkin)
 ```
 
-Boost provides your agent 15+ tools and skills that help agents build Laravel applications while following best practices.
+Har bosqich tegishli rolning amallari bilan bajariladi (biznes-logika
+`app/Actions/Application/` dagi Action’larda, `ApplicationPolicy` bilan
+himoyalangan). Ruxsatnoma berilganda rezident, guvohnoma va ruxsatnoma
+avtomatik yaratiladi.
 
-## Contributing
+---
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+## Lokal o‘rnatish / Local setup
 
-## Code of Conduct
+**Talablar:** PHP 8.3+, Composer, Node.js 18+, (GD kengaytmasi QR uchun).
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+```bash
+git clone https://github.com/dawrandev/besqala-mining.git
+cd besqala-mining
 
-## Security Vulnerabilities
+composer install
+npm install
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+cp .env.example .env
+php artisan key:generate
 
-## License
+# SQLite (eng oson): bo‘sh fayl yaratib, .env da DB_CONNECTION=sqlite qoldiring
+# Linux/macOS:  touch database/database.sqlite
+# Windows:      type nul > database\database.sqlite
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+php artisan migrate --seed      # jadvallar + demo ma’lumotlar
+npm run build                   # yoki ishlab chiqishda: npm run dev
+
+php artisan serve               # http://127.0.0.1:8000
+```
+
+> MySQL ishlatish uchun `.env` da `DB_CONNECTION=mysql` va ulanish
+> ma’lumotlarini kiriting, so‘ng `php artisan migrate --seed`.
+
+Laragon’da: loyihani `www/` ga qo‘yib, `besqala-mining.test` vhost orqali
+oching (Apache/Nginx + hosts avtomatik sozlanadi).
+
+---
+
+## Test va sifat / Testing & quality
+
+```bash
+php artisan test               # yoki ./vendor/bin/pest  (62 ta test)
+./vendor/bin/phpstan analyse   # statik tahlil, level 5
+./vendor/bin/pint              # kod formatlash (Laravel preset)
+```
+
+---
+
+## Loyiha tuzilishi / Project structure
+
+```
+app/
+  Actions/Application/   biznes-logika (Create, Transition, IssueResidentPermit, ...)
+  Actions/Document/      RenderDocumentPdf (QR-kodli PDF)
+  Enums/                 UserRole, ApplicationStatus, DocumentKind, NewsCategory, Region, ...
+  Http/Controllers/      Public/ (ochiq sayt), App/ (panellar), Admin/ (kontent)
+  Livewire/              ApplicationForm, ApplicationActions, NewsManager, ...
+  Models/                Application, Resident, Document, NewsArticle, Leader, ...
+  Policies/              ApplicationPolicy, DocumentPolicy
+  Support/               Qr, Concerns/HasTranslations
+resources/
+  css/app.css            TailAdmin dizayn tizimi + accent (public) palette
+  views/public/          ochiq sahifalar
+  views/app/             rol panellari
+  views/components/      layouts, ui/*, admin/*
+lang/                    uz · ru · en (guruh fayllari + JSON)
+database/                migrations, seeders/DemoSeeder, factories
+docs/                    RESEARCH.md, decisions.md, DEPLOYMENT.md
+```
+
+---
+
+## Ko‘p tillilik / Localization
+
+- Interfeys: `lang/{uz,ru,en}.json` (tekis kalitlar) + `lang/{uz,ru,en}/*.php`
+  (enum guruhlari). Sana/vaqt Carbon locale bilan sinxron (uz → `uz_Latn`).
+- Kontent (yangilik, rahbariyat, biz haqimizda): JSON ustunlar, `HasTranslations`.
+- Til almashtirgich har sahifada; tanlov sessiya + foydalanuvchida saqlanadi.
+
+---
+
+## Deploy
+
+To‘liq ishlab chiqarish (production) yo‘riqnomasi: **[docs/DEPLOYMENT.md](docs/DEPLOYMENT.md)**.
+
+Qisqa qadamlar:
+
+```bash
+composer install --no-dev --optimize-autoloader
+npm ci && npm run build
+php artisan migrate --force
+php artisan config:cache && php artisan route:cache && php artisan view:cache
+```
+
+`APP_ENV=production`, `APP_DEBUG=false`, kuchli `APP_KEY`, MySQL, HTTPS.
+
+---
+
+## Hujjatlar / Docs
+
+- [`docs/RESEARCH.md`](docs/RESEARCH.md) — asl tizim tahlili (reverse-engineering)
+- [`docs/decisions.md`](docs/decisions.md) — arxitektura qarorlari
+- [`docs/DEPLOYMENT.md`](docs/DEPLOYMENT.md) — production deploy yo‘riqnomasi
+
+---
+
+## Litsenziya / License
+
+Loyiha kodi — mualliflik huquqi egasiga tegishli. Dizayn tizimi TailAdmin
+(Free, MIT) asosida. Laravel — MIT.
