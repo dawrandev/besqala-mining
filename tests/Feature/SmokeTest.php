@@ -31,6 +31,6 @@ it('renders public pages with seeded content', function (string $uri): void {
 
 it('shows a single news article', function (): void {
     $this->seed(DemoSeeder::class);
-    $slug = \App\Models\NewsArticle::query()->value('slug');
+    $slug = App\Models\NewsArticle::query()->value('slug');
     $this->get("/news/{$slug}")->assertOk();
 });
