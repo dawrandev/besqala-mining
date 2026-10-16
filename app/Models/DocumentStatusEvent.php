@@ -53,4 +53,29 @@ class DocumentStatusEvent extends Model
     {
         return $this->belongsTo(User::class, 'actor_id');
     }
+
+    /**
+     * A public, privacy-safe label for this lifecycle change (no actor name),
+     * used on the public registry/verification page.
+     */
+    public function publicLabel(): string
+    {
+        return match (true) {
+            $this->to_status === DocumentStatus::Active && $this->from_status === DocumentStatus::Suspended => __('Amal tiklandi'),
+            $this->to_status === DocumentStatus::Active => __('Guvohnoma berildi'),
+            $this->to_status === DocumentStatus::Suspended => __('Amal to‘xtatildi'),
+            $this->to_status === DocumentStatus::Terminated => __('Amal tugatildi'),
+            $this->to_status === DocumentStatus::Annulled => __('Bekor qilindi'),
+            $this->to_status === DocumentStatus::Reissued => __('Qayta rasmiylashtirildi'),
+            default => $this->to_status->label(),
+        };
+    }
+
+    /**
+     * Whether this event should appear on the public history (drafts are internal).
+     */
+    public function isPublic(): bool
+    {
+        return $this->to_status !== DocumentStatus::Draft;
+    }
 }

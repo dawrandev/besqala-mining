@@ -354,3 +354,61 @@ it('rejects an impossible transition via the endpoint', function (): void {
         ->postJson(route('app.documents.status', $certificate), ['action' => 'suspend', 'reason' => 'Test sabab'])
         ->assertStatus(422);
 });
+
+// ---------------------------------------------------------------------------
+// Module 4 — public registry/verification page (Regulation point 21)
+// ---------------------------------------------------------------------------
+
+it('shows the public registry record for an issued certificate', function (): void {
+    Storage::fake('documents');
+    $certificate = freshActiveCertificate();
+
+    $this->get(route('verify', ['no' => $certificate->number]))
+        ->assertOk()
+        ->assertSee($certificate->number)
+        ->assertSee('«Lifecycle» MChJ')
+        ->assertSee(__('Reestr yozuvi'))
+        ->assertSee(__('Amaldagi guvohnoma'));
+});
+
+it('never reveals a draft certificate on the public page', function (): void {
+    $certificate = freshDraftCertificate();
+
+    $this->get(route('verify', ['no' => $certificate->number]))
+        ->assertOk()
+        ->assertSee(__('Hujjat topilmadi'))
+        ->assertDontSee('«Lifecycle» MChJ');
+});
+
+it('keeps the public page available with history after suspension', function (): void {
+    Storage::fake('documents');
+    $certificate = freshActiveCertificate();
+    app(ChangeDocumentStatus::class)->handle($certificate, DocumentStatus::Suspended, direksiyaUser(), 'Hujjatlar tekshirilmoqda');
+
+    $this->get(route('verify', ['no' => $certificate->refresh()->number]))
+        ->assertOk()
+        ->assertSee(__('Amal vaqtincha to‘xtatilgan'))
+        ->assertSee(__('Holat o‘zgarishlari tarixi'))
+        ->assertSee('Hujjatlar tekshirilmoqda');
+});
+
+it('links a reissued certificate to its replacement on the public page', function (): void {
+    Storage::fake('documents');
+    $previous = freshActiveCertificate();
+    $replacement = app(ReissueCertificate::class)->handle($previous, direksiyaUser(), 'Nom o‘zgardi');
+
+    $this->get(route('verify', ['no' => $previous->refresh()->number]))
+        ->assertOk()
+        ->assertSee(__('Qayta rasmiylashtirilgan'))
+        ->assertSee($replacement->number);
+});
+
+it('does not expose staff identities on the public page', function (): void {
+    Storage::fake('documents');
+    $certificate = freshActiveCertificate();
+    app(ChangeDocumentStatus::class)->handle($certificate, DocumentStatus::Suspended, direksiyaUser(), 'Sabab matni');
+
+    $this->get(route('verify', ['no' => $certificate->refresh()->number]))
+        ->assertOk()
+        ->assertDontSee(direksiyaUser()->name);
+});
