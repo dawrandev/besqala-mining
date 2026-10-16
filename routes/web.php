@@ -118,4 +118,7 @@ Route::middleware('auth')->prefix('app')->name('app.')->group(function (): void 
 
     // Document PDF download (staff or owning applicant; policy-guarded).
     Route::get('/documents/{document}/pdf', [DocumentController::class, 'download'])->name('documents.download');
+
+    // Officially issue (freeze) a draft certificate — Directorate only (policy-guarded).
+    Route::post('/documents/{document}/issue', [DocumentController::class, 'issue'])->name('documents.issue');
 });

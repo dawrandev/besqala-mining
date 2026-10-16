@@ -17,6 +17,7 @@ use App\Models\Application;
 use App\Models\ApplicationEvent;
 use App\Models\Deficiency;
 use App\Models\Document;
+use App\Models\DocumentStatusEvent;
 use App\Models\ExpertConclusion;
 use App\Models\Inspection;
 use App\Models\Leader;
@@ -125,9 +126,9 @@ class DemoSeeder extends Seeder
             'registered_at' => now()->subMonths(9),
         ]);
 
-        // Certificates for registered residents.
-        $this->issueCertificate($aral, 'G-2026-0001', $users['authority']);
-        $this->issueCertificate($kungrad, 'G-2026-0002', $users['authority']);
+        // Certificates for registered residents (officially issued by the Directorate).
+        $this->issueCertificate($aral, 'G-2026-0001', $users['direksiya']);
+        $this->issueCertificate($kungrad, 'G-2026-0002', $users['direksiya']);
 
         // Active permit for Aral, so the authority dashboard shows one.
         Document::query()->create([
@@ -146,16 +147,58 @@ class DemoSeeder extends Seeder
 
     private function issueCertificate(Resident $resident, string $number, User $issuer): Document
     {
-        return Document::query()->create([
+        $document = Document::query()->create([
+            'internal_uid' => (string) Str::uuid(),
             'number' => $number,
             'kind' => DocumentKind::Certificate,
             'status' => DocumentStatus::Active,
             'resident_id' => $resident->id,
             'issued_by' => $issuer->id,
             'payload' => ['companyName' => $resident->company_name],
+            'data_snapshot' => $this->residentSnapshot($resident),
             'template_version' => 'v1',
             'issued_at' => $resident->registered_at,
             'expires_at' => $resident->registered_at?->copy()->addYears(5),
+        ]);
+
+        $this->logDocStatus($document, null, DocumentStatus::Draft, $issuer, $resident->registered_at);
+        $this->logDocStatus($document, DocumentStatus::Draft, DocumentStatus::Active, $issuer, $resident->registered_at);
+
+        return $document;
+    }
+
+    /**
+     * Immutable snapshot of resident data, matching IssueCertificate.
+     *
+     * @return array<string, mixed>
+     */
+    private function residentSnapshot(Resident $resident): array
+    {
+        return [
+            'company_name' => $resident->company_name,
+            'legal_form' => $resident->legal_form,
+            'region' => $resident->region->value,
+            'address' => $resident->address,
+            'location_address' => $resident->location_address,
+            'email' => $resident->email,
+            'stir' => $resident->stir,
+            'phone' => $resident->phone,
+            'founders' => $resident->founders ?? [],
+            'power_mw' => $resident->power_mw,
+            'energy_source' => $resident->energy_source,
+            'captured_at' => $resident->registered_at?->toIso8601String(),
+        ];
+    }
+
+    private function logDocStatus(Document $document, ?DocumentStatus $from, DocumentStatus $to, User $actor, ?\Illuminate\Support\Carbon $at = null): void
+    {
+        DocumentStatusEvent::query()->create([
+            'document_id' => $document->id,
+            'from_status' => $from,
+            'to_status' => $to,
+            'reason' => $to === DocumentStatus::Active ? __('Guvohnoma rasmiy berildi') : null,
+            'actor_id' => $actor->id,
+            'created_at' => $at ?? now(),
         ]);
     }
 
@@ -223,19 +266,54 @@ class DemoSeeder extends Seeder
             $this->addConclusion($done, $users['expert'], ExpertVerdict::Positive);
 
             // Issued certificate linked to the application (drives the QR preview card).
-            Document::query()->create([
+            $cert = Document::query()->create([
+                'internal_uid' => (string) Str::uuid(),
                 'number' => 'G-2026-'.str_pad((string) (10 + $i), 4, '0', STR_PAD_LEFT),
                 'kind' => DocumentKind::Certificate,
                 'status' => DocumentStatus::Active,
                 'application_id' => $done->id,
-                'issued_by' => $users['authority']->id,
+                'issued_by' => $users['direksiya']->id,
                 'payload' => ['companyName' => $done->company_name],
                 'template_version' => 'v1',
                 'issued_at' => now()->subMonths(2),
                 'expires_at' => now()->addYears(5),
             ]);
+            $this->logDocStatus($cert, null, DocumentStatus::Draft, $users['direksiya'], now()->subMonths(2));
+            $this->logDocStatus($cert, DocumentStatus::Draft, DocumentStatus::Active, $users['direksiya'], now()->subMonths(2));
             $done->update(['decided_at' => now()->subMonths(2)]);
         }
+
+        // One registered resident whose certificate is still a DRAFT, awaiting
+        // official issuance by the Directorate (for demoing "Rasmiy berish").
+        $pendingResident = Resident::query()->create([
+            'owner_id' => $applicant->id,
+            'company_name' => '«Taxiatosh DataHall» MChJ',
+            'stir' => '305660099',
+            'region' => Region::Taxiatosh,
+            'legal_form' => 'MChJ (Mas’uliyati cheklangan jamiyat)',
+            'status' => ResidentStatus::Active,
+            'address' => 'Qoraqalpog‘iston Respublikasi, Taxiatosh tumani, Jayhun MFY, Taraqqiyot ko‘chasi 46',
+            'location_address' => 'Taxiatosh tumani, Jayhun MFY',
+            'email' => 'info@taxiatosh-datahall.uz',
+            'phone' => '+998 61 244 10 10',
+            'founders' => [['name' => 'Esenbaev Jasur', 'share' => 100]],
+            'power_mw' => 15.00,
+            'energy_source' => 'Quyosh',
+            'registered_at' => now()->subDays(2),
+        ]);
+        $pendingApp = $this->pipeline('A-2026-0010', $applicant, $pendingResident, Region::Taxiatosh, ApplicationStatus::Registered);
+        $this->addConclusion($pendingApp, $users['expert'], ExpertVerdict::Positive);
+        $draftCert = Document::query()->create([
+            'internal_uid' => (string) Str::uuid(),
+            'number' => 'G-2026-0013',
+            'kind' => DocumentKind::Certificate,
+            'status' => DocumentStatus::Draft,
+            'resident_id' => $pendingResident->id,
+            'application_id' => $pendingApp->id,
+            'payload' => ['companyName' => $pendingResident->company_name],
+            'template_version' => 'v1',
+        ]);
+        $this->logDocStatus($draftCert, null, DocumentStatus::Draft, $users['authority'], now()->subDays(2));
         $rejected = $this->pipeline('A-2026-0006', $applicant, null, Region::Beruniy, ApplicationStatus::Rejected, companyName: '«Rad etilgan» MChJ');
         $this->addConclusion($rejected, $users['expert'], ExpertVerdict::Negative);
     }

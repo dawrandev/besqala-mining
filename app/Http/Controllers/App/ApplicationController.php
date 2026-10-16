@@ -85,9 +85,10 @@ class ApplicationController extends Controller
 
         $application->load(['resident', 'applicant', 'events.actor', 'conclusions.expert', 'deficiencies', 'documents']);
 
-        // Primary verifiable document (certificate preferred) for the preview card.
+        // Primary verifiable document for the preview/QR card — only officially
+        // issued documents (a draft certificate has no public verify page yet).
         $previewDoc = $application->documents
-            ->first(fn ($doc): bool => $doc->kind->isPubliclyVerifiable());
+            ->first(fn ($doc): bool => $doc->isPubliclyVisible());
 
         return view('app.applications.show', [
             'application' => $application,

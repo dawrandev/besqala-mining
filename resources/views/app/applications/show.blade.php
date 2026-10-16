@@ -157,10 +157,25 @@
                             <div class="min-w-0">
                                 <span class="font-mono text-sm font-medium text-gray-700 dark:text-gray-300">{{ $doc->number }}</span>
                                 <span class="ml-2 text-xs text-gray-400">{{ $doc->kind->label() }}</span>
+                                <x-ui.badge :color="$doc->status->color()" class="ml-2">{{ $doc->status->label() }}</x-ui.badge>
                             </div>
                             <div class="flex shrink-0 items-center gap-3">
-                                <a href="{{ route('app.documents.download', $doc) }}" class="inline-flex items-center gap-1 text-sm font-medium text-gray-500 hover:text-brand-600 dark:text-gray-400"><x-icon name="doc" class="h-4 w-4" /> PDF</a>
-                                <a href="{{ route('verify', ['no' => $doc->number]) }}" class="text-sm font-medium text-brand-600 dark:text-brand-400">{{ __('Tekshirish') }}</a>
+                                @can('issue', $doc)
+                                    @if ($doc->kind === \App\Enums\DocumentKind::Certificate && $doc->status === \App\Enums\DocumentStatus::Draft)
+                                        <button type="button"
+                                            x-data="issueCertificate(@js(route('app.documents.issue', $doc)))"
+                                            @click="run()" :disabled="busy"
+                                            class="inline-flex items-center gap-1 rounded-lg bg-brand-500 px-3 py-1.5 text-xs font-semibold text-white hover:bg-brand-600 disabled:opacity-60">
+                                            <x-icon name="shield" class="h-4 w-4" /> {{ __('Rasmiy berish') }}
+                                        </button>
+                                    @endif
+                                @endcan
+                                <a href="{{ route('app.documents.download', $doc) }}" class="inline-flex items-center gap-1 text-sm font-medium text-gray-500 hover:text-brand-600 dark:text-gray-400">
+                                    <x-icon name="doc" class="h-4 w-4" /> {{ $doc->status === \App\Enums\DocumentStatus::Draft ? __('Loyiha PDF') : 'PDF' }}
+                                </a>
+                                @if ($doc->isPubliclyVisible())
+                                    <a href="{{ route('verify', ['no' => $doc->number]) }}" class="text-sm font-medium text-brand-600 dark:text-brand-400">{{ __('Tekshirish') }}</a>
+                                @endif
                             </div>
                         </div>
                     @empty
@@ -224,4 +239,27 @@
             </div>
         </div>
     </div>
+
+    @push('scripts')
+        <script>
+            function issueCertificate(url) {
+                return {
+                    busy: false,
+                    async run() {
+                        if (this.busy) return;
+                        if (!confirm(@js(__('Guvohnomani rasmiy berasizmi? Berilgandan so‘ng PDF o‘zgarmaydi.')))) return;
+                        const { http, toast } = window.besqala;
+                        this.busy = true;
+                        try {
+                            const res = await http.post(url, {});
+                            window.location = res.redirect;
+                        } catch (e) {
+                            this.busy = false;
+                            toast(e.message, 'error');
+                        }
+                    },
+                };
+            }
+        </script>
+    @endpush
 </x-layouts.app>

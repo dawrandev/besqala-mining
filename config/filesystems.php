@@ -40,6 +40,15 @@ return [
             'report' => false,
         ],
 
+        // Frozen, officially-issued document PDFs. Private: served only through
+        // the policy-guarded DocumentController, never via a public URL.
+        'documents' => [
+            'driver' => 'local',
+            'root' => storage_path('app/documents'),
+            'throw' => false,
+            'report' => false,
+        ],
+
         'public' => [
             'driver' => 'local',
             'root' => storage_path('app/public'),
