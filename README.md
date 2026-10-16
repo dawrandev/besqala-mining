@@ -7,13 +7,14 @@
 > zone, issuing permits, and overseeing their activity — built for the
 > Karakalpakstan special mining zone (Resolution PQ‑143, 17.04.2026).
 
-Laravel 13 · Livewire 4 · Tailwind CSS v4 · Alpine.js · ApexCharts
+Laravel 13 · Blade + Alpine.js (AJAX) · Tailwind CSS v4 · ApexCharts
 
 ---
 
 ## Mundarija / Contents
 
 - [Imkoniyatlar / Features](#imkoniyatlar--features)
+- [Guvohnoma hayotiy sikli / Certificate lifecycle](#guvohnoma-hayotiy-sikli--certificate-lifecycle)
 - [Texnologiyalar / Tech stack](#texnologiyalar--tech-stack)
 - [Rollar va demo hisoblar / Roles & demo accounts](#rollar-va-demo-hisoblar--roles--demo-accounts)
 - [Ariza workflow / Application workflow](#ariza-workflow--application-workflow)
@@ -33,23 +34,61 @@ Laravel 13 · Livewire 4 · Tailwind CSS v4 · Alpine.js · ApexCharts
   rezident majburiyatlari / taqiqlar, jarayon bosqichlari, yangiliklar, CTA)
 - Biz haqimizda (missiya, strategik vazifa, qadriyatlar, tarix, bog‘lanish)
 - Rahbariyat · Yangiliklar (kategoriyalar bilan) · **Ochiq reestr** (qidiruv + filtr)
-- **Hujjatni tekshirish** — guvohnoma/ruxsatnoma raqami yoki QR orqali
+- **Ommaviy reestr yozuvi** — guvohnoma raqami yoki QR orqali: to‘liq ochiq
+  ma’lumot (Nizom 21-band), joriy status va status o‘zgarishlari tarixi
 
 **Boshqaruv panellari (TailAdmin dizayni)** — 5 rol:
 - Rol asosidagi sidebar, qidiruv, dark-mode, bildirishnoma va profil menyulari
 - Dashboardlarda **ApexCharts** grafiklar (oylik arizalar, status taqsimoti)
 - Ariza detali: **progress stepper**, tabli bo‘limlar (Ma’lumotlar / Rahbariyat /
-  Uskunalar / Hujjatlar), **QR-kodli guvohnoma preview** kartasi
+  Uskunalar / Hujjatlar), **QR-kodli guvohnoma preview** kartasi,
+  **guvohnoma boshqaruvi** (rasmiy berish, hayotiy sikl, emailga yuborish)
 - To‘liq ariza workflow’i (quyida)
 
-**Hujjatlar**
-- Guvohnoma, ruxsatnoma, ekspert xulosasi, kamchilik xabarnomasi, dalolatnoma
-- **QR-kodli PDF** (dompdf + endroid/qr-code), ommaviy va egaga yuklab olish
-- Har bir hujjat raqam + QR orqali ochiq tekshiriladi
+**Guvohnoma va hujjatlar** — [quyida batafsil](#guvohnoma-hayotiy-sikli--certificate-lifecycle):
+- O‘zgarmaydigan (immutable) berilgan guvohnoma: muzlatilgan PDF + SHA-256 + snapshot
+- Olti bosqichli hayotiy sikl (DRAFT/ACTIVE/SUSPENDED/REISSUED/TERMINATED/ANNULLED)
+- **3 tilli QR-kodli PDF** (uz/ru/en), `BMV-R-YYYY-NNNNNN` raqam
+- Rezidentga **emailga yuborish** (mailto — SMTP sozlamassiz) + yuborish jurnali
 
 **Boshqa**
 - Trilingual interfeys (uz/ru/en) + trilingual kontent (JSON ustunlar)
 - Karakalpakstanning 15 tumani, demo rezidentlar va arizalar
+- Barcha formalar, CRUD va workflow amallari **AJAX** (fetch) orqali, sahifa
+  qayta yuklanmasdan (Livewire’siz — oddiy Blade + Alpine.js)
+
+---
+
+## Guvohnoma hayotiy sikli / Certificate lifecycle
+
+Guvohnoma (свидетельство) rasmiy hujjat sifatida **o‘zgarmaydigan** tarzda
+boshqariladi. To‘liq spetsifikatsiya: **[docs/CERTIFICATE_LIFECYCLE.md](docs/CERTIFICATE_LIFECYCLE.md)**.
+
+**Oqim:**
+```
+Vakolatli organ ruxsatnoma beradi
+   └─▶ rezident ro‘yxatga olinadi, guvohnoma DRAFT holatda yaratiladi
+          (tahrir / qayta generatsiya mumkin, reestrda ko‘rinmaydi)
+
+Direksiya ──[Rasmiy berish]──▶ ACTIVE
+   • PDF storage’ga muzlatiladi + SHA-256 yaxlitlik xeshi
+   • rezident ma’lumotlari snapshoti saqlanadi (keyingi tahrirlar ta’sir qilmaydi)
+   • ommaviy reestrda paydo bo‘ladi; rezidentga emailga yuborish mumkin
+
+ACTIVE ──[To‘xtatib turish]──▶ SUSPENDED ──[Tiklash]──▶ ACTIVE
+ACTIVE ──[Qayta rasmiylashtirish]──▶ yangi DRAFT + eskisi REISSUED (havola bilan)
+ACTIVE ──[Amalni tugatish]──▶ TERMINATED      ACTIVE ──[Bekor qilish]──▶ ANNULLED
+```
+
+- **Immutability:** berilgan PDF hech qachon qayta yozilmaydi; download va ommaviy
+  verify muzlatilgan faylni beradi. Rezident kartasini tahrirlash avval berilgan
+  guvohnomani o‘zgartirmaydi.
+- **Status tarixi (audit):** har o‘zgarishda sana, asos (sabab) va xodim saqlanadi.
+- **Ommaviy reestr sahifasi:** eski QR amal to‘xtagandan keyin ham ishlaydi; joriy
+  status, asos va (qayta rasmiylashtirilgan bo‘lsa) yangi hujjatga havola ko‘rsatiladi.
+- **Email:** ilova o‘zi pochta yubormaydi (SMTP shart emas) — xodimning o‘z pochta
+  dasturini `mailto:` orqali ochadi (PDF va verify havolalari bilan) va yuborishni
+  jurnalga yozadi (Nizom 20-band).
 
 ---
 
@@ -58,7 +97,7 @@ Laravel 13 · Livewire 4 · Tailwind CSS v4 · Alpine.js · ApexCharts
 | Qatlam | Texnologiya |
 |--------|-------------|
 | Backend | PHP 8.3, Laravel 13 |
-| Interaktivlik | Livewire 4 + Alpine.js |
+| Interaktivlik | Alpine.js + AJAX (fetch), `resources/js/ajax.js` |
 | Frontend | Blade, Tailwind CSS v4 (Vite), Outfit font |
 | Grafiklar | ApexCharts |
 | PDF / QR | barryvdh/laravel-dompdf, endroid/qr-code (GD) |
@@ -66,7 +105,9 @@ Laravel 13 · Livewire 4 · Tailwind CSS v4 · Alpine.js · ApexCharts
 | Test / sifat | Pest 4, Larastan (PHPStan lvl 5), Laravel Pint |
 
 Admin panel dizayni [TailAdmin](https://tailadmin.com) (Free, MIT) dizayn
-tizimidan port qilingan; ochiq sayt bespoke.
+tizimidan port qilingan; ochiq sayt bespoke. Loyihada **Livewire ishlatilmaydi** —
+interaktiv qismlar oddiy Blade + Alpine.js, server bilan aloqa esa fetch-asosli
+AJAX endpointlar orqali.
 
 ---
 
@@ -77,7 +118,7 @@ Parol (hammasi uchun): **`demo1234`**
 | Rol | Email | Vazifasi |
 |-----|-------|----------|
 | Talabgor / Rezident | `aral@besqala.uz` | Ariza topshirish, shaxsiy kabinet, hujjatlar |
-| Direksiya | `direksiya@besqala.uz` | To‘liqlik tekshiruvi, rezidentlar, hisobotlar |
+| Direksiya | `direksiya@besqala.uz` | To‘liqlik tekshiruvi, rezidentlar, **guvohnoma rasmiy berish va boshqaruvi**, hisobotlar |
 | Ekspert | `expert@besqala.uz` | Arizalarni ko‘rib chiqish, xulosa berish |
 | Vakolatli organ | `authority@besqala.uz` | Ruxsatnoma berish, nazorat |
 | Admin (kontent) | `admin@besqala.uz` | Yangiliklar, rahbariyat, biz haqimizda |
@@ -90,15 +131,16 @@ Kirish sahifasida har bir rol uchun bir bosishli demo tugmalari mavjud.
 
 ```
 qoralama → topshirildi → to‘liqlik tekshiruvi → ekspert xulosasi
-        → vakolatli organ → ruxsatnoma berildi → ro‘yxatga olingan
+        → vakolatli organ → ro‘yxatga olingan
                                               ↘ rad etilgan
             (kamchilik xabarnomasi istalgan bosqichda qaytarishi mumkin)
 ```
 
 Har bosqich tegishli rolning amallari bilan bajariladi (biznes-logika
 `app/Actions/Application/` dagi Action’larda, `ApplicationPolicy` bilan
-himoyalangan). Ruxsatnoma berilganda rezident, guvohnoma va ruxsatnoma
-avtomatik yaratiladi.
+himoyalangan). Vakolatli organ ruxsatnomani berganda rezident va ruxsatnoma
+yaratiladi, guvohnoma esa **DRAFT** holatida tayyorlanadi; keyin Direksiya uni
+rasmiy beradi (yuqoridagi guvohnoma hayotiy sikliga qarang).
 
 ---
 
@@ -129,6 +171,10 @@ php artisan serve               # http://127.0.0.1:8000
 > MySQL ishlatish uchun `.env` da `DB_CONNECTION=mysql` va ulanish
 > ma’lumotlarini kiriting, so‘ng `php artisan migrate --seed`.
 
+> Berilgan guvohnoma PDF’lari `storage/app/documents` (privat disk) ga saqlanadi
+> — bu papka avtomatik yaratiladi va faqat himoyalangan controller orqali beriladi.
+> Email yuborish uchun **SMTP sozlash shart emas** (mailto ishlatiladi).
+
 Laragon’da: loyihani `www/` ga qo‘yib, `besqala-mining.test` vhost orqali
 oching (Apache/Nginx + hosts avtomatik sozlanadi).
 
@@ -137,7 +183,7 @@ oching (Apache/Nginx + hosts avtomatik sozlanadi).
 ## Test va sifat / Testing & quality
 
 ```bash
-php artisan test               # yoki ./vendor/bin/pest  (62 ta test)
+php artisan test               # yoki ./vendor/bin/pest  (94 ta test)
 ./vendor/bin/phpstan analyse   # statik tahlil, level 5
 ./vendor/bin/pint              # kod formatlash (Laravel preset)
 ```
@@ -149,30 +195,36 @@ php artisan test               # yoki ./vendor/bin/pest  (62 ta test)
 ```
 app/
   Actions/Application/   biznes-logika (Create, Transition, IssueResidentPermit, ...)
-  Actions/Document/      RenderDocumentPdf (QR-kodli PDF)
-  Enums/                 UserRole, ApplicationStatus, DocumentKind, NewsCategory, Region, ...
-  Http/Controllers/      Public/ (ochiq sayt), App/ (panellar), Admin/ (kontent)
-  Livewire/              ApplicationForm, ApplicationActions, NewsManager, ...
-  Models/                Application, Resident, Document, NewsArticle, Leader, ...
-  Policies/              ApplicationPolicy, DocumentPolicy
+  Actions/Document/      RenderDocumentPdf, IssueCertificate (muzlatish), ChangeDocumentStatus,
+                         ReissueCertificate, GenerateDocumentNumber
+  Enums/                 UserRole, ApplicationStatus, DocumentKind, DocumentStatus, Region, ...
+  Http/Controllers/      Public/ (ochiq sayt), App/ (panellar), Admin/ (kontent), DocumentController
+  Http/Requests/         Store*/Update* + DocumentStatusRequest (FormRequest validatsiya)
+  Models/                Application, Resident, Document, DocumentStatusEvent, DocumentDelivery, ...
+  Policies/              ApplicationPolicy, DocumentPolicy (download/issue/manage/sendEmail)
   Support/               Qr, Concerns/HasTranslations
 resources/
   css/app.css            TailAdmin dizayn tizimi + accent (public) palette
-  views/public/          ochiq sahifalar
-  views/app/             rol panellari
+  js/app.js, js/ajax.js  Alpine + ApexCharts + AJAX yordamchi (CSRF, toast, 422 inline)
+  views/public/          ochiq sahifalar (verify = reestr yozuvi sahifasi)
+  views/app/             rol panellari (+ applications/partials, admin/partials)
+  views/pdf/             certificate.blade.php (3 tilli guvohnoma), document.blade.php (generic)
   views/components/      layouts, ui/*, admin/*
-lang/                    uz · ru · en (guruh fayllari + JSON)
+lang/                    uz · ru · en (guruh fayllari: certificate, document_status, ... + JSON)
 database/                migrations, seeders/DemoSeeder, factories
-docs/                    RESEARCH.md, decisions.md, DEPLOYMENT.md
+docs/                    RESEARCH.md, decisions.md, DEPLOYMENT.md, CERTIFICATE_LIFECYCLE.md, templates/
 ```
 
 ---
 
 ## Ko‘p tillilik / Localization
 
-- Interfeys: `lang/{uz,ru,en}.json` (tekis kalitlar) + `lang/{uz,ru,en}/*.php`
-  (enum guruhlari). Sana/vaqt Carbon locale bilan sinxron (uz → `uz_Latn`).
+- Interfeys: `lang/{uz,ru,en}.json` (tekis kalitlar, 399 ta) + `lang/{uz,ru,en}/*.php`
+  (enum va guruh fayllari: `certificate`, `document_status`, ...). Sana/vaqt Carbon
+  locale bilan sinxron (uz → `uz_Latn`).
 - Kontent (yangilik, rahbariyat, biz haqimizda): JSON ustunlar, `HasTranslations`.
+- Guvohnoma PDF’i berilgan til (locale)da muzlatiladi (uz/ru/en — DejaVu Serif,
+  lotin va kirill).
 - Til almashtirgich har sahifada; tanlov sessiya + foydalanuvchida saqlanadi.
 
 ---
@@ -188,9 +240,12 @@ composer install --no-dev --optimize-autoloader
 npm ci && npm run build
 php artisan migrate --force
 php artisan config:cache && php artisan route:cache && php artisan view:cache
+# yozish ruxsati: storage (jumladan storage/app/documents) + bootstrap/cache
 ```
 
 `APP_ENV=production`, `APP_DEBUG=false`, kuchli `APP_KEY`, MySQL, HTTPS.
+Email uchun SMTP shart emas (mailto). `APP_URL` to‘g‘ri bo‘lishi muhim — PDF
+ichidagi QR va verify havolalari shunga asoslanadi.
 
 ---
 
@@ -198,7 +253,9 @@ php artisan config:cache && php artisan route:cache && php artisan view:cache
 
 - [`docs/RESEARCH.md`](docs/RESEARCH.md) — asl tizim tahlili (reverse-engineering)
 - [`docs/decisions.md`](docs/decisions.md) — arxitektura qarorlari
+- [`docs/CERTIFICATE_LIFECYCLE.md`](docs/CERTIFICATE_LIFECYCLE.md) — guvohnoma hayotiy sikli spetsifikatsiyasi
 - [`docs/DEPLOYMENT.md`](docs/DEPLOYMENT.md) — production deploy yo‘riqnomasi
+- [`docs/templates/`](docs/templates/) — tasdiqlangan A4 guvohnoma shablonlari (uz/ru/en)
 
 ---
 

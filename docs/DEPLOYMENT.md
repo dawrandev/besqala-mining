@@ -97,6 +97,15 @@ QUEUE_CONNECTION=database # fon vazifalari bo‘lsa
 
 > `APP_DEBUG=false` va kuchli `APP_KEY` — xavfsizlik uchun majburiy.
 
+> **`APP_URL` to‘g‘ri va HTTPS bo‘lishi juda muhim:** guvohnoma PDF’idagi QR-kod
+> va ommaviy verify havolalari aynan shu manzilga asoslanadi. Noto‘g‘ri bo‘lsa
+> QR ishlamaydi.
+
+> **Email (mailto):** ilova pochtani o‘zi yubormaydi, shuning uchun **SMTP
+> sozlash shart emas**. «Rezidentga yuborish» tugmasi xodimning o‘z pochta
+> dasturini `mailto:` orqali ochadi. `MAIL_*` sozlamalarini standart holicha
+> qoldirsangiz bo‘ladi.
+
 ---
 
 ## 5. Migratsiya va fayllar
@@ -109,6 +118,12 @@ php artisan migrate --force          # production’da --force kerak
 
 php artisan storage:link             # agar foydalanuvchi fayllari bo‘lsa
 ```
+
+> Rasmiy berilgan guvohnoma PDF’lari **privat diskka** — `storage/app/documents`
+> ga muzlatiladi (SHA-256 bilan). Papka avtomatik yaratiladi; u faqat
+> himoyalangan controller orqali beriladi (ommaviy URL yo‘q). Yagona talab —
+> `storage` ga yozish ruxsati (7-bo‘limga qarang). Bu fayllarni **zaxira
+> nusxalashga** (backup) kiriting — ular hujjatlarning o‘zgarmas asl nusxasi.
 
 ---
 
@@ -132,6 +147,9 @@ php artisan event:cache
 sudo chown -R www-data:www-data storage bootstrap/cache
 sudo chmod -R 775 storage bootstrap/cache
 ```
+
+> Bu `storage/app/documents` (muzlatilgan guvohnoma PDF’lari) uchun ham yozish
+> ruxsatini beradi — alohida qadam shart emas.
 
 ---
 
@@ -250,8 +268,14 @@ php artisan up
 
 - [ ] Bosh sahifa ochiladi, UZ/RU/EN til almashadi
 - [ ] Kirish ishlaydi (demo o‘chirilgan bo‘lsa — haqiqiy hisob bilan)
-- [ ] Ariza topshirish → workflow bosqichlari ishlaydi
-- [ ] Hujjat PDF yuklab olinadi, QR ochiq verify sahifasiga olib boradi
+- [ ] Ariza topshirish → workflow bosqichlari ishlaydi (AJAX, sahifa qayta yuklanmaydi)
+- [ ] Vakolatli organ ruxsatnoma beradi → guvohnoma **DRAFT** yaratiladi
+- [ ] Direksiya **«Rasmiy berish»** bosadi → guvohnoma ACTIVE, PDF muzlatiladi
+- [ ] Guvohnoma PDF yuklab olinadi (3 til), QR ommaviy reestr yozuvi sahifasiga olib boradi
+- [ ] Reestr sahifasi 21-band ma’lumotlari + status tarixini ko‘rsatadi
+- [ ] Hayotiy sikl: to‘xtatib turish / tiklash / qayta rasmiylashtirish ishlaydi
+- [ ] «Rezidentga yuborish (email)» xodimning pochta dasturini ochadi (mailto)
+- [ ] `storage/app/documents` da PDF fayllar saqlanmoqda
 - [ ] `storage/logs/laravel.log` da xatolar yo‘q
 - [ ] HTTPS sertifikati amal qiladi
 
@@ -265,6 +289,10 @@ php artisan up
 | CSS/JS yuklanmaydi | `npm run build` bajarilmagan yoki `public/build/` yo‘q; `APP_URL` noto‘g‘ri |
 | QR-kod chiqmaydi | PHP **gd** kengaytmasi o‘rnatilmagan |
 | PDF xato beradi | `dompdf` uchun yozish ruxsati; xotira limiti (`memory_limit`) |
+| Guvohnoma PDF saqlanmaydi / 500 | `storage/app/documents` ga yozish ruxsati (`chown`/`chmod`) |
+| QR noto‘g‘ri manzilga olib boradi | `APP_URL` xato — QR shunga asoslanadi; tuzatib `config:cache` |
+| «Rezidentga yuborish» hech narsa qilmaydi | bu `mailto:` — foydalanuvchining pochta dasturi o‘rnatilgan bo‘lishi kerak |
+| AJAX amallari ishlamaydi (419/CSRF) | `<meta name="csrf-token">` + sessiya; `APP_URL`/cookie domeni; `config:cache` |
 | Sana/oy noto‘g‘ri tilda | `APP_LOCALE`/`APP_FALLBACK_LOCALE` tekshiring (uz → Carbon `uz_Latn`) |
 | 419 Page Expired | `SESSION_DRIVER`/`APP_URL`/cookie domeni; `php artisan config:cache` |
 
