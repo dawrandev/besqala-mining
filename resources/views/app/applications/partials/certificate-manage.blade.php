@@ -39,7 +39,7 @@
         @endif
         <button type="button" @click="open('reissue')" class="rounded-xl border border-brand-300 px-4 py-2 text-sm font-semibold text-brand-700 hover:bg-brand-50 dark:border-brand-500/40 dark:text-brand-400">{{ __('Qayta rasmiylashtirish') }}</button>
         <button type="button" @click="open('terminate')" class="rounded-xl border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 hover:bg-gray-50 dark:border-gray-700 dark:text-gray-200">{{ __('Amalni tugatish') }}</button>
-        <button type="button" @click="open('annul')" class="rounded-xl border border-error-300 px-4 py-2 text-sm font-semibold text-error-700 hover:bg-error-50 dark:border-error-500/40 dark:text-error-500">{{ __('Bekor qilish') }}</button>
+        <button type="button" @click="open('annul')" class="rounded-xl border border-error-300 px-4 py-2 text-sm font-semibold text-error-700 hover:bg-error-50 dark:border-error-500/40 dark:text-error-500">{{ __('Guvohnomani bekor qilish') }}</button>
     </div>
 
     <div x-show="panel" x-cloak x-transition class="mt-4">
