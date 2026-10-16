@@ -18,7 +18,10 @@ use Illuminate\Support\Str;
 
 final class IssueResidentPermit
 {
-    public function __construct(private readonly TransitionApplication $transition) {}
+    public function __construct(
+        private readonly TransitionApplication $transition,
+        private readonly \App\Actions\Document\GenerateDocumentNumber $numbers,
+    ) {}
 
     /**
      * Register the applicant as a resident, create the certificate as a DRAFT
@@ -52,7 +55,7 @@ final class IssueResidentPermit
             // Directorate officially issues (freezes) it.
             $certificate = Document::query()->create([
                 'internal_uid' => (string) Str::uuid(),
-                'number' => $this->nextNumber(DocumentKind::Certificate),
+                'number' => $this->numbers->handle(DocumentKind::Certificate),
                 'kind' => DocumentKind::Certificate,
                 'status' => DocumentStatus::Draft,
                 'resident_id' => $resident->id,
@@ -66,7 +69,7 @@ final class IssueResidentPermit
             // The permit is issued directly (active) by the authority.
             $permit = Document::query()->create([
                 'internal_uid' => (string) Str::uuid(),
-                'number' => $this->nextNumber(DocumentKind::Permit),
+                'number' => $this->numbers->handle(DocumentKind::Permit),
                 'kind' => DocumentKind::Permit,
                 'status' => DocumentStatus::Active,
                 'resident_id' => $resident->id,
@@ -99,13 +102,5 @@ final class IssueResidentPermit
             'actor_id' => $actor->id,
             'created_at' => now(),
         ]);
-    }
-
-    private function nextNumber(DocumentKind $kind): string
-    {
-        $year = now()->year;
-        $count = Document::query()->where('kind', $kind)->whereYear('created_at', $year)->count() + 1;
-
-        return sprintf('%s-%d-%04d', $kind->numberPrefix(), $year, $count);
     }
 }

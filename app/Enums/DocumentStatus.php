@@ -60,4 +60,18 @@ enum DocumentStatus: string
     {
         return $this === self::Active;
     }
+
+    /**
+     * Whether a lifecycle transition from this status to the given one is
+     * allowed. DRAFT leaves only through official issuance (handled by
+     * IssueCertificate); REISSUED/TERMINATED/ANNULLED are terminal.
+     */
+    public function canTransitionTo(self $to): bool
+    {
+        return match ($this) {
+            self::Active => in_array($to, [self::Suspended, self::Terminated, self::Annulled, self::Reissued], true),
+            self::Suspended => in_array($to, [self::Active, self::Terminated, self::Annulled, self::Reissued], true),
+            self::Draft, self::Reissued, self::Terminated, self::Annulled => false,
+        };
+    }
 }

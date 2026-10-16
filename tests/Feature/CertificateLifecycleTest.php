@@ -3,7 +3,9 @@
 declare(strict_types=1);
 
 use App\Actions\Application\IssueResidentPermit;
+use App\Actions\Document\ChangeDocumentStatus;
 use App\Actions\Document\IssueCertificate;
+use App\Actions\Document\ReissueCertificate;
 use App\Enums\ApplicationStatus;
 use App\Enums\DocumentKind;
 use App\Enums\DocumentStatus;
@@ -37,15 +39,29 @@ function freshDraftCertificate(): Document
     return $application->refresh()->documents()->where('kind', DocumentKind::Certificate)->sole();
 }
 
+/**
+ * A fresh, officially issued (ACTIVE) certificate. Caller must Storage::fake first.
+ */
+function freshActiveCertificate(): Document
+{
+    $certificate = freshDraftCertificate();
+    app(IssueCertificate::class)->handle($certificate, direksiyaUser());
+
+    return $certificate->refresh();
+}
+
 function registrationApplication(): Application
 {
+    static $seq = 0;
+    $seq++;
+
     return Application::query()->create([
-        'number' => 'A-2026-9100',
+        'number' => 'A-2026-9'.str_pad((string) $seq, 3, '0', STR_PAD_LEFT),
         'applicant_id' => User::query()->where('role', UserRole::Applicant)->firstOrFail()->id,
         'type' => App\Enums\ApplicationType::Registration,
         'status' => ApplicationStatus::AuthorityReview,
         'company_name' => '«Lifecycle» MChJ',
-        'stir' => '301010101',
+        'stir' => '3010'.str_pad((string) $seq, 5, '0', STR_PAD_LEFT),
         'region' => 'beruniy',
         'legal_form' => 'MChJ',
         'address' => 'Beruniy, 1',
@@ -216,4 +232,125 @@ it('never serves a draft certificate on the public verify endpoint', function ()
     // After official issuance: public.
     app(IssueCertificate::class)->handle($certificate, direksiyaUser());
     $this->get(route('verify.pdf', ['number' => $certificate->refresh()->number]))->assertOk();
+});
+
+// ---------------------------------------------------------------------------
+// Module 3 — lifecycle actions (suspend / restore / terminate / annul / reissue)
+// ---------------------------------------------------------------------------
+
+it('suspends and restores an active certificate, recording grounds', function (): void {
+    Storage::fake('documents');
+    $certificate = freshActiveCertificate();
+
+    app(ChangeDocumentStatus::class)->handle($certificate, DocumentStatus::Suspended, direksiyaUser(), 'Tekshiruv davomida');
+    $certificate->refresh();
+    expect($certificate->status)->toBe(DocumentStatus::Suspended);
+
+    app(ChangeDocumentStatus::class)->handle($certificate, DocumentStatus::Active, direksiyaUser(), 'Kamchilik bartaraf etildi');
+    $certificate->refresh();
+    expect($certificate->status)->toBe(DocumentStatus::Active);
+
+    $events = $certificate->statusEvents()->get();
+    $suspend = $events->firstWhere('to_status', DocumentStatus::Suspended);
+    expect($suspend->reason)->toBe('Tekshiruv davomida')
+        ->and($suspend->actor_id)->toBe(direksiyaUser()->id)
+        ->and($events->last()->to_status)->toBe(DocumentStatus::Active);
+});
+
+it('terminates and annuls with grounds', function (): void {
+    Storage::fake('documents');
+
+    $a = freshActiveCertificate();
+    app(ChangeDocumentStatus::class)->handle($a, DocumentStatus::Terminated, direksiyaUser(), 'Muddati tugadi');
+    expect($a->refresh()->status)->toBe(DocumentStatus::Terminated);
+
+    $b = freshActiveCertificate();
+    app(ChangeDocumentStatus::class)->handle($b, DocumentStatus::Annulled, direksiyaUser(), 'Qoidabuzarlik');
+    expect($b->refresh()->status)->toBe(DocumentStatus::Annulled);
+});
+
+it('does not touch the frozen PDF when the status changes', function (): void {
+    Storage::fake('documents');
+    $certificate = freshActiveCertificate();
+    $hash = $certificate->sha256;
+    $bytes = Storage::disk('documents')->get($certificate->pdf_path);
+
+    app(ChangeDocumentStatus::class)->handle($certificate, DocumentStatus::Suspended, direksiyaUser(), 'Sabab');
+    $certificate->refresh();
+
+    expect($certificate->sha256)->toBe($hash)
+        ->and(Storage::disk('documents')->get($certificate->pdf_path))->toBe($bytes);
+});
+
+it('rejects an invalid lifecycle transition', function (): void {
+    Storage::fake('documents');
+    $certificate = freshActiveCertificate();
+    app(ChangeDocumentStatus::class)->handle($certificate, DocumentStatus::Terminated, direksiyaUser(), 'Tugatildi');
+
+    // Terminated is terminal — cannot suspend it.
+    expect(fn () => app(ChangeDocumentStatus::class)->handle($certificate->refresh(), DocumentStatus::Suspended, direksiyaUser(), 'x'))
+        ->toThrow(RuntimeException::class);
+});
+
+it('reissues a certificate: new draft replacement, previous marked reissued', function (): void {
+    Storage::fake('documents');
+    $previous = freshActiveCertificate();
+
+    $replacement = app(ReissueCertificate::class)->handle($previous, direksiyaUser(), 'Nom o‘zgardi');
+    $previous->refresh();
+
+    expect($replacement->status)->toBe(DocumentStatus::Draft)
+        ->and($replacement->kind)->toBe(DocumentKind::Certificate)
+        ->and($replacement->number)->not->toBe($previous->number)
+        ->and($replacement->resident_id)->toBe($previous->resident_id)
+        ->and($previous->status)->toBe(DocumentStatus::Reissued)
+        ->and($previous->replaced_by_document_id)->toBe($replacement->id);
+
+    // The previous certificate keeps its frozen PDF and public verify page.
+    $this->get(route('verify.pdf', ['number' => $previous->number]))->assertOk();
+});
+
+it('lets the Directorate change status via the endpoint', function (): void {
+    Storage::fake('documents');
+    $certificate = freshActiveCertificate();
+
+    $this->actingAs(direksiyaUser())
+        ->postJson(route('app.documents.status', $certificate), ['action' => 'suspend', 'reason' => 'Tekshiruv'])
+        ->assertOk()
+        ->assertJson(['ok' => true]);
+
+    expect($certificate->refresh()->status)->toBe(DocumentStatus::Suspended);
+});
+
+it('forbids non-Directorate roles from lifecycle changes', function (): void {
+    Storage::fake('documents');
+    $certificate = freshActiveCertificate();
+
+    foreach ([UserRole::Applicant, UserRole::Expert, UserRole::Authority] as $role) {
+        $user = User::query()->where('role', $role)->firstOrFail();
+        $this->actingAs($user)
+            ->postJson(route('app.documents.status', $certificate), ['action' => 'suspend', 'reason' => 'Test sabab'])
+            ->assertForbidden();
+    }
+
+    expect($certificate->refresh()->status)->toBe(DocumentStatus::Active);
+});
+
+it('requires grounds for a lifecycle change', function (): void {
+    Storage::fake('documents');
+    $certificate = freshActiveCertificate();
+
+    $this->actingAs(direksiyaUser())
+        ->postJson(route('app.documents.status', $certificate), ['action' => 'suspend'])
+        ->assertStatus(422)
+        ->assertJsonValidationErrors(['reason']);
+});
+
+it('rejects an impossible transition via the endpoint', function (): void {
+    $certificate = freshDraftCertificate();
+
+    // A draft cannot be suspended.
+    $this->actingAs(direksiyaUser())
+        ->postJson(route('app.documents.status', $certificate), ['action' => 'suspend', 'reason' => 'Test sabab'])
+        ->assertStatus(422);
 });

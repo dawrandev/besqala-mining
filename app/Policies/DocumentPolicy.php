@@ -33,4 +33,14 @@ class DocumentPolicy
     {
         return $user->role === UserRole::Direksiya;
     }
+
+    /**
+     * The Directorate manages the certificate lifecycle (suspend, restore,
+     * terminate, annul, reissue). The specific transition validity is enforced
+     * by the lifecycle actions.
+     */
+    public function manage(User $user, Document $document): bool
+    {
+        return $user->role === UserRole::Direksiya;
+    }
 }

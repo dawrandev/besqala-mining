@@ -4,10 +4,13 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers;
 
+use App\Actions\Document\ChangeDocumentStatus;
 use App\Actions\Document\IssueCertificate;
+use App\Actions\Document\ReissueCertificate;
 use App\Actions\Document\RenderDocumentPdf;
 use App\Enums\DocumentKind;
 use App\Enums\DocumentStatus;
+use App\Http\Requests\DocumentStatusRequest;
 use App\Models\Document;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -78,6 +81,56 @@ class DocumentController extends Controller
         $action->handle($document, $request->user());
 
         session()->flash('status', __('Guvohnoma rasmiy berildi.'));
+
+        return response()->json([
+            'ok' => true,
+            'redirect' => $document->application_id !== null
+                ? route('app.applications.show', $document->application_id)
+                : route('app.residents'),
+        ]);
+    }
+
+    /**
+     * Apply a certificate lifecycle change (suspend / restore / terminate /
+     * annul / reissue). Directorate only; grounds are mandatory.
+     */
+    public function changeStatus(
+        DocumentStatusRequest $request,
+        Document $document,
+        ChangeDocumentStatus $change,
+        ReissueCertificate $reissue,
+    ): JsonResponse {
+        Gate::forUser($request->user())->authorize('manage', $document);
+
+        $action = $request->string('action')->value();
+        $reason = (string) $request->input('reason');
+        $user = $request->user();
+
+        $target = match ($action) {
+            'suspend' => DocumentStatus::Suspended,
+            'restore' => DocumentStatus::Active,
+            'terminate' => DocumentStatus::Terminated,
+            'annul' => DocumentStatus::Annulled,
+            'reissue' => DocumentStatus::Reissued,
+            default => null,
+        };
+
+        abort_if(
+            $target === null || ! $document->status->canTransitionTo($target),
+            422,
+            __('Bu amalni hujjatning joriy holatida bajarib bo‘lmaydi.'),
+        );
+
+        if ($action === 'reissue') {
+            abort_if($document->kind !== DocumentKind::Certificate, 422, __('Faqat guvohnomani qayta rasmiylashtirish mumkin.'));
+            $reissue->handle($document, $user, $reason);
+            $message = __('Guvohnoma qayta rasmiylashtirishga yuborildi (yangi loyiha yaratildi).');
+        } else {
+            $change->handle($document, $target, $user, $reason);
+            $message = __('Hujjat holati yangilandi.');
+        }
+
+        session()->flash('status', $message);
 
         return response()->json([
             'ok' => true,

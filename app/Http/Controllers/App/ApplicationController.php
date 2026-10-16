@@ -90,12 +90,19 @@ class ApplicationController extends Controller
         $previewDoc = $application->documents
             ->first(fn ($doc): bool => $doc->isPubliclyVisible());
 
+        // The live certificate for lifecycle management (suspend/annul/reissue…):
+        // the officially issued one, not a reissued/terminated/annulled predecessor.
+        $certificate = $application->documents
+            ->first(fn ($doc): bool => $doc->kind === \App\Enums\DocumentKind::Certificate
+                && in_array($doc->status, [\App\Enums\DocumentStatus::Active, \App\Enums\DocumentStatus::Suspended], true));
+
         return view('app.applications.show', [
             'application' => $application,
             'previewDoc' => $previewDoc,
             'previewQr' => $previewDoc !== null
                 ? \App\Support\Qr::dataUri(route('verify', ['no' => $previewDoc->number]))
                 : null,
+            'certificate' => $certificate,
         ]);
     }
 

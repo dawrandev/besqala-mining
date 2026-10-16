@@ -190,6 +190,11 @@
             @include('app.applications.partials.actions')
         @endcan
 
+        {{-- Certificate lifecycle management (Directorate) --}}
+        @if ($certificate && auth()->user()->can('manage', $certificate))
+            @include('app.applications.partials.certificate-manage')
+        @endif
+
         <div class="grid gap-6 lg:grid-cols-2">
             {{-- Timeline --}}
             <div class="card">

@@ -121,4 +121,7 @@ Route::middleware('auth')->prefix('app')->name('app.')->group(function (): void 
 
     // Officially issue (freeze) a draft certificate — Directorate only (policy-guarded).
     Route::post('/documents/{document}/issue', [DocumentController::class, 'issue'])->name('documents.issue');
+
+    // Certificate lifecycle change (suspend/restore/terminate/annul/reissue) — Directorate only.
+    Route::post('/documents/{document}/status', [DocumentController::class, 'changeStatus'])->name('documents.status');
 });
