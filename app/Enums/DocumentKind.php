@@ -24,17 +24,26 @@ enum DocumentKind: string
     }
 
     /**
-     * Prefix used when generating document numbers (e.g. "G-2026-0001").
+     * Prefix used when generating document numbers. The certificate follows the
+     * approved template format "BMV-R-YYYY-NNNNNN".
      */
     public function numberPrefix(): string
     {
         return match ($this) {
-            self::Certificate => 'G',
+            self::Certificate => 'BMV-R',
             self::Permit => 'R',
             self::ExpertConclusion => 'E',
             self::DeficiencyNotice => 'K',
             self::InspectionAct => 'D',
         };
+    }
+
+    /**
+     * Zero-padding width for the sequential part of the number.
+     */
+    public function numberPadWidth(): int
+    {
+        return $this === self::Certificate ? 6 : 4;
     }
 
     /**

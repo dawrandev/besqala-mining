@@ -412,3 +412,22 @@ it('does not expose staff identities on the public page', function (): void {
         ->assertOk()
         ->assertDontSee(direksiyaUser()->name);
 });
+
+// ---------------------------------------------------------------------------
+// Module 5 — certificate number format (BMV-R-YYYY-NNNNNN)
+// ---------------------------------------------------------------------------
+
+it('numbers certificates in the approved BMV-R format', function (): void {
+    $certificate = freshDraftCertificate();
+
+    expect($certificate->number)->toMatch('/^BMV-R-\d{4}-\d{6}$/');
+});
+
+it('renders a certificate PDF without error', function (): void {
+    Storage::fake('documents');
+    $certificate = freshActiveCertificate();
+
+    $bytes = app(App\Actions\Document\RenderDocumentPdf::class)->handle($certificate)->output();
+
+    expect($bytes)->toStartWith('%PDF')->and(strlen($bytes))->toBeGreaterThan(10000);
+});

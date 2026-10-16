@@ -32,5 +32,5 @@ it('gives each document kind a distinct number prefix', function (): void {
     $prefixes = array_map(fn (DocumentKind $k) => $k->numberPrefix(), DocumentKind::cases());
 
     expect($prefixes)->toBe(array_unique($prefixes))
-        ->and(DocumentKind::Certificate->numberPrefix())->toBe('G');
+        ->and(DocumentKind::Certificate->numberPrefix())->toBe('BMV-R');
 });

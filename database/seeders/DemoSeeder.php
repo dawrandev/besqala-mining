@@ -127,8 +127,8 @@ class DemoSeeder extends Seeder
         ]);
 
         // Certificates for registered residents (officially issued by the Directorate).
-        $this->issueCertificate($aral, 'G-2026-0001', $users['direksiya']);
-        $this->issueCertificate($kungrad, 'G-2026-0002', $users['direksiya']);
+        $this->issueCertificate($aral, 'BMV-R-2026-000001', $users['direksiya']);
+        $this->issueCertificate($kungrad, 'BMV-R-2026-000002', $users['direksiya']);
 
         // Active permit for Aral, so the authority dashboard shows one.
         Document::query()->create([
@@ -268,7 +268,7 @@ class DemoSeeder extends Seeder
             // Issued certificate linked to the application (drives the QR preview card).
             $cert = Document::query()->create([
                 'internal_uid' => (string) Str::uuid(),
-                'number' => 'G-2026-'.str_pad((string) (10 + $i), 4, '0', STR_PAD_LEFT),
+                'number' => 'BMV-R-2026-'.str_pad((string) (10 + $i), 6, '0', STR_PAD_LEFT),
                 'kind' => DocumentKind::Certificate,
                 'status' => DocumentStatus::Active,
                 'application_id' => $done->id,
@@ -305,7 +305,7 @@ class DemoSeeder extends Seeder
         $this->addConclusion($pendingApp, $users['expert'], ExpertVerdict::Positive);
         $draftCert = Document::query()->create([
             'internal_uid' => (string) Str::uuid(),
-            'number' => 'G-2026-0013',
+            'number' => 'BMV-R-2026-000013',
             'kind' => DocumentKind::Certificate,
             'status' => DocumentStatus::Draft,
             'resident_id' => $pendingResident->id,

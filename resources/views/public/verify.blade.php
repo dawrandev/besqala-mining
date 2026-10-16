@@ -9,7 +9,7 @@
         </div>
 
         <form method="GET" class="mx-auto mt-8 flex max-w-xl gap-3">
-            <input type="text" name="no" value="{{ $number }}" placeholder="G-2026-0001"
+            <input type="text" name="no" value="{{ $number }}" placeholder="BMV-R-2026-000001"
                 class="flex-1 rounded-xl border-gray-300 bg-white text-center font-mono text-sm shadow-theme-xs focus:border-accent-500 focus:ring-accent-500 dark:border-gray-700 dark:bg-gray-900 dark:text-white">
             <button type="submit" class="rounded-xl bg-accent-500 px-6 py-3 text-sm font-semibold text-white hover:bg-accent-600">{{ __('Tekshirish') }}</button>
         </form>

@@ -23,7 +23,7 @@ it('renders public pages with seeded content', function (string $uri): void {
 })->with([
     'registry' => ['/registry'],
     'verify' => ['/verify'],
-    'verify with number' => ['/verify?no=G-2026-0001'],
+    'verify with number' => ['/verify?no=BMV-R-2026-000001'],
     'news index' => ['/news'],
     'about' => ['/about'],
     'leadership' => ['/leadership'],

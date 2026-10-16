@@ -9,7 +9,7 @@ use App\Models\Document;
 
 /**
  * Generate the next sequential, human-facing document number for a kind,
- * e.g. "G-2026-0001". (The number format is revisited in Module 5.)
+ * e.g. "BMV-R-2026-000001".
  */
 final class GenerateDocumentNumber
 {
@@ -22,6 +22,8 @@ final class GenerateDocumentNumber
             ->whereYear('created_at', $year)
             ->count() + 1;
 
-        return sprintf('%s-%d-%04d', $kind->numberPrefix(), $year, $count);
+        $sequence = str_pad((string) $count, $kind->numberPadWidth(), '0', STR_PAD_LEFT);
+
+        return sprintf('%s-%d-%s', $kind->numberPrefix(), $year, $sequence);
     }
 }

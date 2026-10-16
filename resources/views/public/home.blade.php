@@ -72,7 +72,7 @@
                             <span class="rounded-full bg-accent-400/15 px-2.5 py-0.5 text-xs font-medium text-accent-300">{{ __('Amal qiladi') }}</span>
                         </div>
                         <p class="mt-6 text-xs text-gray-400">{{ __('Guvohnoma') ?? 'Guvohnoma' }}</p>
-                        <p class="font-mono text-2xl font-bold tracking-wider text-white">G-2026-0001</p>
+                        <p class="font-mono text-2xl font-bold tracking-wider text-white">BMV-R-2026-000001</p>
                         <div class="mt-5 grid grid-cols-2 gap-4 border-t border-white/10 pt-5 text-sm">
                             <div><p class="text-xs text-gray-500">{{ __('Quvvat') }}</p><p class="font-semibold text-white">24 MW</p></div>
                             <div><p class="text-xs text-gray-500">{{ __('Energiya manbai') }}</p><p class="font-semibold text-white">{{ __('Quyosh / Gidro') }}</p></div>
