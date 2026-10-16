@@ -3,7 +3,10 @@
 declare(strict_types=1);
 
 return [
+    'draft' => 'Qoralama',
     'active' => 'Amal qiladi',
-    'revoked' => 'Bekor qilingan',
-    'expired' => 'Muddati tugagan',
+    'suspended' => 'To‘xtatilgan',
+    'reissued' => 'Qayta rasmiylashtirilgan',
+    'terminated' => 'Amal tugatilgan',
+    'annulled' => 'Bekor qilingan',
 ];

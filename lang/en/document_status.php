@@ -3,7 +3,10 @@
 declare(strict_types=1);
 
 return [
+    'draft' => 'Draft',
     'active' => 'Active',
-    'revoked' => 'Revoked',
-    'expired' => 'Expired',
+    'suspended' => 'Suspended',
+    'reissued' => 'Reissued',
+    'terminated' => 'Terminated',
+    'annulled' => 'Annulled',
 ];

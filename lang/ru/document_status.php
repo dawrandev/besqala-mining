@@ -3,7 +3,10 @@
 declare(strict_types=1);
 
 return [
+    'draft' => 'Черновик',
     'active' => 'Действует',
-    'revoked' => 'Аннулирован',
-    'expired' => 'Срок истёк',
+    'suspended' => 'Приостановлен',
+    'reissued' => 'Переоформлен',
+    'terminated' => 'Действие прекращено',
+    'annulled' => 'Аннулирован',
 ];

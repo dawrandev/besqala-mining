@@ -10,17 +10,23 @@ use App\Enums\DocumentStatus;
 use App\Enums\ResidentStatus;
 use App\Models\Application;
 use App\Models\Document;
+use App\Models\DocumentStatusEvent;
 use App\Models\Resident;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 
 final class IssueResidentPermit
 {
     public function __construct(private readonly TransitionApplication $transition) {}
 
     /**
-     * Register the applicant as a resident, issue the certificate and permit,
-     * and move the application to the registered state.
+     * Register the applicant as a resident, create the certificate as a DRAFT
+     * (officially issued later by the Directorate) and issue the permit, then
+     * move the application to the registered state.
+     *
+     * See docs/CERTIFICATE_LIFECYCLE.md — the certificate PDF is frozen only at
+     * official issuance, not here.
      */
     public function handle(Application $application, User $authority): Application
     {
@@ -42,20 +48,24 @@ final class IssueResidentPermit
                 'registered_at' => now(),
             ]);
 
+            // Certificate starts as a DRAFT: editable and regenerable until the
+            // Directorate officially issues (freezes) it.
             $certificate = Document::query()->create([
+                'internal_uid' => (string) Str::uuid(),
                 'number' => $this->nextNumber(DocumentKind::Certificate),
                 'kind' => DocumentKind::Certificate,
-                'status' => DocumentStatus::Active,
+                'status' => DocumentStatus::Draft,
                 'resident_id' => $resident->id,
                 'application_id' => $application->id,
-                'issued_by' => $authority->id,
+                'issued_by' => null,
                 'payload' => ['companyName' => $resident->company_name],
                 'template_version' => 'v1',
-                'issued_at' => now(),
-                'expires_at' => now()->addYears(5),
             ]);
+            $this->recordStatus($certificate, null, DocumentStatus::Draft, $authority, __('Guvohnoma loyihasi yaratildi'));
 
-            Document::query()->create([
+            // The permit is issued directly (active) by the authority.
+            $permit = Document::query()->create([
+                'internal_uid' => (string) Str::uuid(),
                 'number' => $this->nextNumber(DocumentKind::Permit),
                 'kind' => DocumentKind::Permit,
                 'status' => DocumentStatus::Active,
@@ -66,6 +76,7 @@ final class IssueResidentPermit
                 'issued_at' => now(),
                 'expires_at' => now()->addYears(5),
             ]);
+            $this->recordStatus($permit, null, DocumentStatus::Active, $authority, __('Ruxsatnoma berildi'));
 
             $application->update(['resident_id' => $resident->id]);
 
@@ -73,9 +84,21 @@ final class IssueResidentPermit
                 $application,
                 ApplicationStatus::Registered,
                 $authority,
-                __('Hujjat rasmiy berildi: :number', ['number' => $certificate->number]),
+                __('Rezident ro‘yxatga olindi; guvohnoma loyihasi tayyorlandi'),
             );
         });
+    }
+
+    private function recordStatus(Document $document, ?DocumentStatus $from, DocumentStatus $to, User $actor, ?string $reason): void
+    {
+        DocumentStatusEvent::query()->create([
+            'document_id' => $document->id,
+            'from_status' => $from,
+            'to_status' => $to,
+            'reason' => $reason,
+            'actor_id' => $actor->id,
+            'created_at' => now(),
+        ]);
     }
 
     private function nextNumber(DocumentKind $kind): string
