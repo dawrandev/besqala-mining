@@ -431,3 +431,61 @@ it('renders a certificate PDF without error', function (): void {
 
     expect($bytes)->toStartWith('%PDF')->and(strlen($bytes))->toBeGreaterThan(10000);
 });
+
+// ---------------------------------------------------------------------------
+// Module 6 — email dispatch via mailto (no SMTP) + delivery log
+// ---------------------------------------------------------------------------
+
+it('prepares the certificate email (mailto) and logs the dispatch', function (): void {
+    Storage::fake('documents');
+    $certificate = freshActiveCertificate();
+    $certificate->resident->update(['email' => 'resident@example.uz']);
+
+    $response = $this->actingAs(direksiyaUser())
+        ->postJson(route('app.documents.email', $certificate))
+        ->assertOk()
+        ->assertJson(['ok' => true]);
+
+    $mailto = $response->json('mailto');
+    expect($mailto)->toStartWith('mailto:resident@example.uz?')
+        ->and($mailto)->toContain($certificate->number);
+
+    $this->assertDatabaseHas('document_deliveries', [
+        'document_id' => $certificate->id,
+        'to_email' => 'resident@example.uz',
+        'sent_by' => direksiyaUser()->id,
+        'status' => 'dispatched',
+    ]);
+});
+
+it('forbids non-Directorate roles from emailing', function (): void {
+    Storage::fake('documents');
+    $certificate = freshActiveCertificate();
+    $certificate->resident->update(['email' => 'resident@example.uz']);
+
+    foreach ([UserRole::Applicant, UserRole::Expert, UserRole::Authority] as $role) {
+        $user = User::query()->where('role', $role)->firstOrFail();
+        $this->actingAs($user)
+            ->postJson(route('app.documents.email', $certificate))
+            ->assertForbidden();
+    }
+
+    $this->assertDatabaseCount('document_deliveries', 0);
+});
+
+it('does not email a draft certificate', function (): void {
+    $certificate = freshDraftCertificate();
+
+    $this->actingAs(direksiyaUser())
+        ->postJson(route('app.documents.email', $certificate))
+        ->assertStatus(422);
+});
+
+it('rejects emailing when the resident has no email', function (): void {
+    Storage::fake('documents');
+    $certificate = freshActiveCertificate();
+
+    $this->actingAs(direksiyaUser())
+        ->postJson(route('app.documents.email', $certificate))
+        ->assertStatus(422);
+});

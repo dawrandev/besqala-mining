@@ -12,6 +12,7 @@ use App\Enums\DocumentKind;
 use App\Enums\DocumentStatus;
 use App\Http\Requests\DocumentStatusRequest;
 use App\Models\Document;
+use App\Models\DocumentDelivery;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
@@ -137,6 +138,62 @@ class DocumentController extends Controller
             'redirect' => $document->application_id !== null
                 ? route('app.applications.show', $document->application_id)
                 : route('app.residents'),
+        ]);
+    }
+
+    /**
+     * Prepare the certificate email for the resident and log the dispatch.
+     *
+     * The app does not send mail itself: it returns a mailto: URL (recipient,
+     * subject, body with the PDF download and verify links) that the staff
+     * member opens in their own mail client. The log records who initiated it,
+     * to whom and when (Regulation point 20).
+     */
+    public function dispatchEmail(Request $request, Document $document): JsonResponse
+    {
+        Gate::forUser($request->user())->authorize('sendEmail', $document);
+
+        abort_if(
+            $document->kind !== DocumentKind::Certificate || ! $document->status->isOfficiallyIssued(),
+            422,
+            __('Faqat rasmiy berilgan guvohnomani yuborish mumkin.'),
+        );
+
+        $resident = $document->resident;
+        $snapshotEmail = is_array($document->data_snapshot) ? ($document->data_snapshot['email'] ?? null) : null;
+        $email = ($resident !== null ? $resident->email : null) ?? $snapshotEmail;
+
+        abort_if(
+            ! is_string($email) || $email === '',
+            422,
+            __('Rezidentning elektron pochta manzili ko‘rsatilmagan.'),
+        );
+
+        $verifyUrl = route('verify', ['no' => $document->number]);
+        $pdfUrl = route('verify.pdf', ['number' => $document->number]);
+
+        $subject = __('certificate.email_subject', ['number' => $document->number]);
+        $body = __('certificate.email_body', [
+            'number' => $document->number,
+            'pdf' => $pdfUrl,
+            'verify' => $verifyUrl,
+        ]);
+
+        $mailto = 'mailto:'.$email.'?subject='.rawurlencode($subject).'&body='.rawurlencode($body);
+
+        DocumentDelivery::query()->create([
+            'document_id' => $document->id,
+            'channel' => 'email',
+            'to_email' => $email,
+            'sent_by' => $request->user()->id,
+            'status' => 'dispatched',
+            'created_at' => now(),
+        ]);
+
+        return response()->json([
+            'ok' => true,
+            'mailto' => $mailto,
+            'message' => __('Email tayyorlandi — pochta dasturingizda oching.'),
         ]);
     }
 

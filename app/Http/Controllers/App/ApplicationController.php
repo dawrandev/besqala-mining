@@ -83,7 +83,7 @@ class ApplicationController extends Controller
             403,
         );
 
-        $application->load(['resident', 'applicant', 'events.actor', 'conclusions.expert', 'deficiencies', 'documents']);
+        $application->load(['resident', 'applicant', 'events.actor', 'conclusions.expert', 'deficiencies', 'documents.deliveries']);
 
         // Primary verifiable document for the preview/QR card — only officially
         // issued documents (a draft certificate has no public verify page yet).

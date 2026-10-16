@@ -84,6 +84,12 @@ class Document extends Model
         return $this->hasMany(DocumentStatusEvent::class)->oldest();
     }
 
+    /** @return HasMany<DocumentDelivery, $this> */
+    public function deliveries(): HasMany
+    {
+        return $this->hasMany(DocumentDelivery::class)->latest('created_at');
+    }
+
     /** The document that replaced this one when it was reissued. */
     /** @return BelongsTo<Document, $this> */
     public function replacedBy(): BelongsTo

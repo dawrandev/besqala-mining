@@ -17,4 +17,7 @@ return [
     'label_date' => 'ДАТА ВЫДАЧИ',
     'signatory_title' => 'Руководитель дирекции',
     'signatory_name' => 'Дж. Есенбаев',
+
+    'email_subject' => '«Besqala Mining Valley» — Свидетельство :number',
+    'email_body' => "Уважаемый резидент,\n\nСвидетельство о регистрации в качестве резидента специальной майнинговой зоны «Besqala Mining Valley» оформлено.\n\nНомер свидетельства: :number\nСкачать PDF: :pdf\nПроверка в реестре: :verify\n\nС уважением,\nДирекция специальной майнинговой зоны «Besqala Mining Valley»",
 ];

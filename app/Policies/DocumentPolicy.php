@@ -43,4 +43,12 @@ class DocumentPolicy
     {
         return $user->role === UserRole::Direksiya;
     }
+
+    /**
+     * The Directorate dispatches an issued certificate to the resident's email.
+     */
+    public function sendEmail(User $user, Document $document): bool
+    {
+        return $user->role === UserRole::Direksiya;
+    }
 }

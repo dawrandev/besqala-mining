@@ -124,4 +124,7 @@ Route::middleware('auth')->prefix('app')->name('app.')->group(function (): void 
 
     // Certificate lifecycle change (suspend/restore/terminate/annul/reissue) — Directorate only.
     Route::post('/documents/{document}/status', [DocumentController::class, 'changeStatus'])->name('documents.status');
+
+    // Prepare the certificate email (mailto) for the resident — Directorate only.
+    Route::post('/documents/{document}/email', [DocumentController::class, 'dispatchEmail'])->name('documents.email');
 });

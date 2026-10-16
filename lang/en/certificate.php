@@ -17,4 +17,7 @@ return [
     'label_date' => 'ISSUE DATE',
     'signatory_title' => 'Director of the Directorate',
     'signatory_name' => 'J. Esenbaev',
+
+    'email_subject' => '“Besqala Mining Valley” — Certificate :number',
+    'email_body' => "Dear resident,\n\nYour certificate of registration as a resident of the “Besqala Mining Valley” special mining zone has been issued.\n\nCertificate number: :number\nDownload the PDF: :pdf\nVerify in the registry: :verify\n\nSincerely,\nThe “Besqala Mining Valley” special mining zone directorate",
 ];
